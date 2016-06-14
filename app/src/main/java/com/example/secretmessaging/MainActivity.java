@@ -32,6 +32,7 @@ package com.example.secretmessaging;
         import android.support.annotation.NonNull;
         import android.text.TextUtils;
         import android.text.method.ScrollingMovementMethod;
+        import android.util.Log;
         import android.view.View;
         import android.view.ViewGroup;
         import android.widget.Button;
@@ -401,5 +402,6 @@ public class MainActivity extends Activity
                 mOutputText.setText("Request cancelled.");
             }
         }
+
     }
 }
