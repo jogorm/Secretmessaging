@@ -13,6 +13,7 @@ package com.example.secretmessaging;
         import com.google.api.client.json.jackson2.JacksonFactory;
         import com.google.api.client.util.ExponentialBackOff;
 
+        import com.google.api.services.gmail.Gmail;
         import com.google.api.services.gmail.GmailScopes;
 
         import com.google.api.services.gmail.model.*;
@@ -30,7 +31,6 @@ package com.example.secretmessaging;
         import android.os.AsyncTask;
         import android.os.Bundle;
         import android.support.annotation.NonNull;
-        import android.text.TextUtils;
         import android.text.method.ScrollingMovementMethod;
         import android.util.Log;
         import android.view.View;
@@ -61,8 +61,9 @@ public class MainActivity extends Activity
 
     private static final String BUTTON_TEXT = "Connect to Gmail";
     private static final String PREF_ACCOUNT_NAME = "accountName";
-    private static final String[] SCOPES = { GmailScopes.GMAIL_LABELS };
-
+//    private static final String[] SCOPES = { GmailScopes.GMAIL_LABELS };
+    private static final String[ ] SCOPES = { GmailScopes.GMAIL_LABELS, GmailScopes.GMAIL_COMPOSE,
+        GmailScopes.GMAIL_INSERT, GmailScopes.GMAIL_MODIFY, GmailScopes.GMAIL_READONLY, GmailScopes.MAIL_GOOGLE_COM };
     /**
      * Create the main activity.
      * @param savedInstanceState previously saved instance data.
@@ -70,19 +71,9 @@ public class MainActivity extends Activity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        LinearLayout activityLayout = new LinearLayout(this);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT);
-        activityLayout.setLayoutParams(lp);
-        activityLayout.setOrientation(LinearLayout.VERTICAL);
-        activityLayout.setPadding(16, 16, 16, 16);
-
-        ViewGroup.LayoutParams tlp = new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-
-        mCallApiButton = new Button(this);
+        setContentView(R.layout.activity_main);
+//
+        mCallApiButton = (Button)findViewById(R.id.button);
         mCallApiButton.setText(BUTTON_TEXT);
         mCallApiButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -93,21 +84,12 @@ public class MainActivity extends Activity
                 mCallApiButton.setEnabled(true);
             }
         });
-        activityLayout.addView(mCallApiButton);
 
         mOutputText = new TextView(this);
-        mOutputText.setLayoutParams(tlp);
-        mOutputText.setPadding(16, 16, 16, 16);
-        mOutputText.setVerticalScrollBarEnabled(true);
-        mOutputText.setMovementMethod(new ScrollingMovementMethod());
-        mOutputText.setText(
-                "Click the \'" + BUTTON_TEXT +"\' button to test the API.");
-        activityLayout.addView(mOutputText);
-
+        mOutputText.setText("Click the \'" + BUTTON_TEXT + "\' button to test the API.");
         mProgress = new ProgressDialog(this);
         mProgress.setMessage("Calling Gmail API ...");
 
-        setContentView(activityLayout);
 
         // Initialize credentials and service object.
         mCredential = GoogleAccountCredential.usingOAuth2(
@@ -260,6 +242,8 @@ public class MainActivity extends Activity
         // Do nothing.
     }
 
+
+
     /**
      * Checks whether the device currently has a network connection.
      * @return true if the device has a network connection, false otherwise.
@@ -319,7 +303,7 @@ public class MainActivity extends Activity
      * An asynchronous task that handles the Gmail API call.
      * Placing the API calls in their own task ensures the UI stays responsive.
      */
-    private class MakeRequestTask extends AsyncTask<Void, Void, List<String>> {
+    private class MakeRequestTask extends AsyncTask<Void, Void, List<Message>> {
         private com.google.api.services.gmail.Gmail mService = null;
         private Exception mLastError = null;
 
@@ -337,15 +321,19 @@ public class MainActivity extends Activity
          * @param params no parameters needed for this task.
          */
         @Override
-        protected List<String> doInBackground(Void... params) {
+        //protected List<String> doInBackground(Void... params) {
+        protected List<Message> doInBackground(Void... params) {
             try {
-                return getDataFromApi();
+                //return getDataFromApi();
+                //return getMessage(mService, "me", "154f26a90630cb66");
+                return listMessagesMatchingQuery(mService, "me", "Burr");
             } catch (Exception e) {
                 mLastError = e;
                 cancel(true);
                 return null;
             }
         }
+
 
         /**
          * Fetch a list of Gmail labels attached to the specified account.
@@ -364,6 +352,39 @@ public class MainActivity extends Activity
             return labels;
         }
 
+        public Message getMessage(Gmail service, String userId, String messageId)
+                throws IOException {
+            Message message = service.users().messages().get(userId, messageId).execute();
+
+            //System.out.println("Message snippet: " + message.getSnippet());
+            Log.i("message", "Message snippet: " + message.getSnippet());
+
+            return message;
+        }
+
+        public List<Message> listMessagesMatchingQuery(Gmail service, String userId,
+                                                              String query) throws IOException {
+            ListMessagesResponse response = service.users().messages().list(userId).setQ(query).execute();
+
+            List<Message> messages = new ArrayList<Message>();
+            while (response.getMessages() != null) {
+                messages.addAll(response.getMessages());
+                if (response.getNextPageToken() != null) {
+                    String pageToken = response.getNextPageToken();
+                    response = service.users().messages().list(userId).setQ(query)
+                            .setPageToken(pageToken).execute();
+                } else {
+                    break;
+                }
+            }
+
+            for (Message message : messages) {
+                System.out.println(message.toPrettyString());
+            }
+
+            return messages;
+        }
+
 
         @Override
         protected void onPreExecute() {
@@ -372,13 +393,13 @@ public class MainActivity extends Activity
         }
 
         @Override
-        protected void onPostExecute(List<String> output) {
+        protected void onPostExecute(List<Message> output) {
             mProgress.hide();
             if (output == null || output.size() == 0) {
                 mOutputText.setText("No results returned.");
             } else {
-                output.add(0, "Data retrieved using the Gmail API:");
-                mOutputText.setText(TextUtils.join("\n", output));
+                //output.add(0, "Data retrieved using the Gmail API:");
+                //mOutputText.setText(TextUtils.join("\n", output));
             }
         }
 
@@ -403,5 +424,9 @@ public class MainActivity extends Activity
             }
         }
 
+
     }
+
+
+
 }
