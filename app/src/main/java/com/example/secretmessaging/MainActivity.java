@@ -11,6 +11,7 @@ package com.example.secretmessaging;
         import com.google.api.client.http.HttpTransport;
         import com.google.api.client.json.JsonFactory;
         import com.google.api.client.json.jackson2.JacksonFactory;
+        import com.google.api.client.repackaged.org.apache.commons.codec.binary.Base64;
         import com.google.api.client.util.ExponentialBackOff;
 
         import com.google.api.services.gmail.Gmail;
@@ -30,19 +31,35 @@ package com.example.secretmessaging;
         import android.net.NetworkInfo;
         import android.os.AsyncTask;
         import android.os.Bundle;
+        import android.service.textservice.SpellCheckerService;
         import android.support.annotation.NonNull;
         import android.text.method.ScrollingMovementMethod;
         import android.util.Log;
         import android.view.View;
         import android.view.ViewGroup;
         import android.widget.Button;
+        import android.widget.EditText;
         import android.widget.LinearLayout;
         import android.widget.TextView;
+        import android.widget.Toast;
 
+        import java.io.ByteArrayOutputStream;
         import java.io.IOException;
+        import java.lang.reflect.Array;
         import java.util.ArrayList;
         import java.util.Arrays;
         import java.util.List;
+        import java.util.Properties;
+
+        import javax.activation.DataHandler;
+        import javax.mail.MessagingException;
+        import javax.mail.Multipart;
+        import javax.mail.Session;
+        import javax.mail.internet.InternetAddress;
+        import javax.mail.internet.MimeBodyPart;
+        import javax.mail.internet.MimeMessage;
+        import javax.mail.internet.MimeMultipart;
+
 
         import pub.devrel.easypermissions.AfterPermissionGranted;
         import pub.devrel.easypermissions.EasyPermissions;
@@ -53,6 +70,11 @@ public class MainActivity extends Activity
     private TextView mOutputText;
     private Button mCallApiButton;
     ProgressDialog mProgress;
+    EditText messageEdit;
+    EditText emailEdit;
+    ArrayList<String> sendValues = new ArrayList<String>();
+    String[] sendingValues = new String[0];
+
 
     static final int REQUEST_ACCOUNT_PICKER = 1000;
     static final int REQUEST_AUTHORIZATION = 1001;
@@ -64,6 +86,7 @@ public class MainActivity extends Activity
 //    private static final String[] SCOPES = { GmailScopes.GMAIL_LABELS };
     private static final String[ ] SCOPES = { GmailScopes.GMAIL_LABELS, GmailScopes.GMAIL_COMPOSE,
         GmailScopes.GMAIL_INSERT, GmailScopes.GMAIL_MODIFY, GmailScopes.GMAIL_READONLY, GmailScopes.MAIL_GOOGLE_COM };
+    private com.google.api.services.gmail.Gmail mService = null;
     /**
      * Create the main activity.
      * @param savedInstanceState previously saved instance data.
@@ -85,10 +108,31 @@ public class MainActivity extends Activity
             }
         });
 
-        mOutputText = new TextView(this);
+        mOutputText =  (TextView)findViewById(R.id.textView);
         mOutputText.setText("Click the \'" + BUTTON_TEXT + "\' button to test the API.");
         mProgress = new ProgressDialog(this);
         mProgress.setMessage("Calling Gmail API ...");
+
+        messageEdit = (EditText)findViewById(R.id.messageText);
+        emailEdit = (EditText)findViewById(R.id.emailText);
+
+        Button sendButton = (Button)findViewById(R.id.sendButton);
+        sendButton.setOnClickListener(
+                new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View v) {
+                        Log.i("hallo", messageEdit.getText().toString());
+                        Log.i("hallo", emailEdit.getText().toString());
+                        sendValues.clear();
+                        sendValues.add(messageEdit.getText().toString());
+                        sendValues.add(emailEdit.getText().toString());
+
+                        new SendMessage().execute(sendValues);
+                    }
+                });
+
+
 
 
         // Initialize credentials and service object.
@@ -303,8 +347,8 @@ public class MainActivity extends Activity
      * An asynchronous task that handles the Gmail API call.
      * Placing the API calls in their own task ensures the UI stays responsive.
      */
-    private class MakeRequestTask extends AsyncTask<Void, Void, List<Message>> {
-        private com.google.api.services.gmail.Gmail mService = null;
+    private class MakeRequestTask extends AsyncTask<ArrayList<String>, String, List<Message>> {
+        //private com.google.api.services.gmail.Gmail mService = null;
         private Exception mLastError = null;
 
         public MakeRequestTask(GoogleAccountCredential credential) {
@@ -322,10 +366,8 @@ public class MainActivity extends Activity
          */
         @Override
         //protected List<String> doInBackground(Void... params) {
-        protected List<Message> doInBackground(Void... params) {
+        protected List<Message> doInBackground(ArrayList<String>... params) {
             try {
-                //return getDataFromApi();
-                //return getMessage(mService, "me", "154f26a90630cb66");
                 return listMessagesMatchingQuery(mService, "me", "Burr");
             } catch (Exception e) {
                 mLastError = e;
@@ -333,7 +375,6 @@ public class MainActivity extends Activity
                 return null;
             }
         }
-
 
         /**
          * Fetch a list of Gmail labels attached to the specified account.
@@ -349,6 +390,7 @@ public class MainActivity extends Activity
             for (Label label : listResponse.getLabels()) {
                 labels.add(label.getName());
             }
+
             return labels;
         }
 
@@ -427,6 +469,75 @@ public class MainActivity extends Activity
 
     }
 
+    private class SendMessage extends AsyncTask<ArrayList<String>,String, Void>{
 
+        public void sendMessage(Gmail service, String userId, MimeMessage email)
+                throws MessagingException, IOException {
+            Message message = createMessageWithEmail(email);
+            message = service.users().messages().send(userId, message).execute();
+
+            System.out.println("Message id: " + message.getId());
+            System.out.println(message.toPrettyString());
+        }
+
+        public Message createMessageWithEmail(MimeMessage email)
+                throws MessagingException, IOException {
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            email.writeTo(bytes);
+            String encodedEmail = Base64.encodeBase64URLSafeString(bytes.toByteArray());
+            Message message = new Message();
+            message.setRaw(encodedEmail);
+            return message;
+        }
+
+        public MimeMessage createEmail(String to, String from, String subject,
+                                       String bodyText) throws MessagingException {
+            Properties props = new Properties();
+            Session session = Session.getDefaultInstance(props, null);
+
+            MimeMessage email = new MimeMessage(session);
+            InternetAddress tAddress = new InternetAddress(to);
+            InternetAddress fAddress = new InternetAddress(from);
+
+            email.setFrom(new InternetAddress(from));
+            email.addRecipient(javax.mail.Message.RecipientType.TO,
+                    new InternetAddress(to));
+            email.setSubject(subject);
+            email.setText(bodyText);
+            return email;
+        }
+
+
+        @Override
+        protected Void doInBackground(ArrayList<String>... params) {
+            String message = params[0].get(0);
+            String email = params[0].get(1);
+//            String message = params[0];
+//            String email = params[1];
+
+            try {
+                sendMessage(mService, "me", createEmail(email, "me", "test", message));
+                Log.i("hallo", "Sent message: " + message + "to email: " +email);
+            } catch (MessagingException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            Context context = getApplicationContext();
+            CharSequence text = "Message sent!";
+            int duration = Toast.LENGTH_SHORT;
+
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.show();
+        }
+
+    }
 
 }
