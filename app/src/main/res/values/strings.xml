@@ -11,9 +11,13 @@
 <string name="btn_share">Share</string>
 
 <!-- Twitter Configurations -->
-<string name="twitter_callback">http://javatechig.android.app</string>
-<string name="twitter_consumer_key">vm9wqDvyGlz5ruLRfJ36A6Yr6</string>
-<string name="twitter_consumer_secret">haYGNkZ0ttcYtlYDxfyR2PXvCM5tXwiby7vSRGfDPFmHRjcd7u</string>
+<string name="twitter_callback">x-oauthflow-twitter://callback</string>
+<string name="twitter_consumer_key">SpHeceJw3jmFVskY50nnUfBC4</string>
+<string name="twitter_consumer_secret">prOOd00ugc6t1Uegw77zAZKZY1CHGuzwuPPYt0wRH9srL8YfGj</string>
 <string name="twitter_oauth_verifier">oauth_verifier</string>
+<string name="url_twitter_auth">auth_url</string>
+    <string name="url_twitter_oauth_token">oauth_token</string>
 <!-- End Configurations -->
+
+
 </resources>

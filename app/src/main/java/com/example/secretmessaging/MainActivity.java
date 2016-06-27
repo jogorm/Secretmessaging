@@ -82,15 +82,14 @@ package com.example.secretmessaging;
 public class MainActivity extends Activity
         implements EasyPermissions.PermissionCallbacks {
 
-
+    //Twitter Stuff
 
     private static Twitter twitter;
-    //private static RequestToken requestToken;
     private static SharedPreferences mSharedPreferences;
-
     private static RequestToken requestToken;
     private Button btnLogin;
     private Button logOut;
+    private Button doTwitterStuff;
 
 
     //Google Stuff
@@ -117,23 +116,18 @@ public class MainActivity extends Activity
     private com.google.api.services.gmail.Gmail mService = null;
 
 
-
-
-    static String TWITTER_CONSUMER_KEY = "JYhx8bRhjyyZFlhJ1MGhBBH74";
-    static String TWITTER_CONSUMER_SECRET = "IGM0IqCSsC9rTFnf3JD8tNgvMpxpOQtLsPAA3e45M9uEdKGxiq";
+    String twitter_consumer_key;
+    String twitter_consumer_secret;
+    String twitter_callback;
+    String url_twitter_auth;
+    String twitter_oauth_verifier;
+    String url_twitter_oauth_token;
 
     // Preference Constants
     static String PREFERENCE_NAME = "twitter_oauth";
     static final String PREF_KEY_OAUTH_TOKEN = "oauth_token";
     static final String PREF_KEY_OAUTH_SECRET = "oauth_token_secret";
-    static final String PREF_KEY_TWITTER_LOGIN = "isTwitterLogedIn";
-
-    static final String TWITTER_CALLBACK_URL = "x-oauthflow-twitter://callback";
-
-    // Twitter oauth urls
-    static final String URL_TWITTER_AUTH = "auth_url";
-    static final String URL_TWITTER_OAUTH_VERIFIER = "oauth_verifier";
-    static final String URL_TWITTER_OAUTH_TOKEN = "oauth_token";
+    static final String PREF_KEY_TWITTER_LOGIN = "isTwitterLoggedIn";
 
 
     /**
@@ -144,6 +138,14 @@ public class MainActivity extends Activity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        twitter_consumer_key = getResources().getString(R.string.twitter_consumer_key);
+        twitter_consumer_secret = getResources().getString(R.string.twitter_consumer_secret);
+        twitter_callback = getResources().getString(R.string.twitter_callback);
+        url_twitter_auth = getResources().getString(R.string.url_twitter_auth);
+        twitter_oauth_verifier = getResources().getString(R.string.twitter_oauth_verifier);
+        url_twitter_oauth_token = getResources().getString(R.string.url_twitter_oauth_token);
+
+//        String TWITTER_OAUTH_VERIFIER = getResources().getString(R.string.twitter_consumer_secret );
 
         //setContentView(R.layout.activity_main);
 
@@ -181,10 +183,10 @@ public class MainActivity extends Activity
 
         if (!isTwitterLoggedInAlready()) {
             Uri uri = getIntent().getData();
-            if (uri != null && uri.toString().startsWith(TWITTER_CALLBACK_URL)) {
+            if (uri != null && uri.toString().startsWith(twitter_callback)) {
                 // oAuth verifier
                 String verifier = uri
-                        .getQueryParameter(URL_TWITTER_OAUTH_VERIFIER);
+                        .getQueryParameter(twitter_oauth_verifier);
 
                 try {
                     // Get the access token
@@ -217,13 +219,23 @@ public class MainActivity extends Activity
                     // For now i am getting his name only
                     long userID = accessToken.getUserId();
                     User user = twitter.showUser(userID);
+                    User user2 = twitter.showUser("testjotestra");
+                    long abc = user2.getId();
+                    Log.i("hallo", "testjotestra's id is : "+String.valueOf(abc));
 
-//                    List<DirectMessage> messages = twitter.getDirectMessages();
-//                    for (DirectMessage message : messages)
-//                    {
-//                        Log.i("hallo messages", message.toString());
-//                    }
-//                    twitter.directMessages().getDirectMessages();
+                    List<DirectMessage> messages = twitter.getDirectMessages();
+                    for (DirectMessage message : messages)
+                    {
+                        if(message.getText().contains("Hei")) {
+                            Log.i("hallo messages", message.toString());
+                        }
+                    }
+                    twitter.directMessages().getDirectMessages();
+
+                    //// TODO: 25.06.2016 Need to move all network stuff to async thread.
+                    long testjo = 745178402408169472L;
+                    //twitter.directMessages().sendDirectMessage(testjo,"Heisann!");
+                    Log.i("hallo", "Sent message");
                     String username = user.getName();
 
                     Toast.makeText(MainActivity.this, "Welcome " + username, Toast.LENGTH_SHORT).show();
@@ -296,8 +308,8 @@ public class MainActivity extends Activity
         // Check if already logged in
         if (!isTwitterLoggedInAlready()) {
             ConfigurationBuilder builder = new ConfigurationBuilder();
-            builder.setOAuthConsumerKey(TWITTER_CONSUMER_KEY);
-            builder.setOAuthConsumerSecret(TWITTER_CONSUMER_SECRET);
+            builder.setOAuthConsumerKey(twitter_consumer_key);
+            builder.setOAuthConsumerSecret(twitter_consumer_secret);
             Configuration configuration = builder.build();
 
             TwitterFactory factory = new TwitterFactory(configuration);
@@ -305,7 +317,7 @@ public class MainActivity extends Activity
 
             try {
                 requestToken = twitter
-                        .getOAuthRequestToken(TWITTER_CALLBACK_URL);
+                        .getOAuthRequestToken(twitter_callback);
                 this.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(requestToken.getAuthenticationURL())));
             } catch (TwitterException e) {
                 e.printStackTrace();
@@ -314,8 +326,8 @@ public class MainActivity extends Activity
             // user already logged into twitter
 
             ConfigurationBuilder builder = new ConfigurationBuilder();
-            builder.setOAuthConsumerKey(TWITTER_CONSUMER_KEY);
-            builder.setOAuthConsumerSecret(TWITTER_CONSUMER_SECRET);
+            builder.setOAuthConsumerKey(twitter_consumer_key);
+            builder.setOAuthConsumerSecret(twitter_consumer_secret);
 
             SharedPreferences shared = getPreferences(MODE_PRIVATE);
 
@@ -426,7 +438,6 @@ public class MainActivity extends Activity
     }*/
 
 
-    //todo have to think about have to fix this situation. Is probably a good idea to have both the google stuff and the twitter stuff active, but how?
     //Can't find out where "onActivityResult" is called from twitter method.
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -808,6 +819,8 @@ public class MainActivity extends Activity
             return message.getSnippet();
         }
     }
+
+
 
 }
 

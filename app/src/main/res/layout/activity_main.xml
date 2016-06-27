@@ -74,5 +74,12 @@
         android:id="@+id/logOutFromTwitter"
         android:layout_below="@+id/btn_login"
         android:layout_centerHorizontal="true" />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Do twitter stuff"
+        android:id="@+id/doTwitterStuff"
+        android:layout_below="@+id/sendButton"
+        android:layout_centerHorizontal="true" />
 </RelativeLayout>
 
