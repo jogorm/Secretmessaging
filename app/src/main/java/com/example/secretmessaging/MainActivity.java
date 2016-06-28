@@ -178,6 +178,7 @@ public class MainActivity extends Activity
             public void onClick(View v) {
 
                 logoutFromTwitter();
+                Log.i("hallo", "testing branches");
             }
         });
 
