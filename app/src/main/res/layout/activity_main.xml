@@ -12,7 +12,8 @@
         android:id="@+id/button"
         android:layout_gravity="center_horizontal|top"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="false" />
+        android:layout_centerHorizontal="false"
+        />
 
     <TextView
         android:layout_width="wrap_content"

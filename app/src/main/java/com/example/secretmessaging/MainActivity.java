@@ -55,14 +55,14 @@ package com.example.secretmessaging;
         import java.util.List;
         import java.util.Properties;
 
-        import javax.activation.DataHandler;
+
         import javax.mail.MessagingException;
-        import javax.mail.Multipart;
+
         import javax.mail.Session;
         import javax.mail.internet.InternetAddress;
-        import javax.mail.internet.MimeBodyPart;
+
         import javax.mail.internet.MimeMessage;
-        import javax.mail.internet.MimeMultipart;
+
 
 
         import pub.devrel.easypermissions.AfterPermissionGranted;
@@ -77,6 +77,7 @@ package com.example.secretmessaging;
         import twitter4j.auth.RequestToken;
         import twitter4j.conf.Configuration;
         import twitter4j.conf.ConfigurationBuilder;
+
 
 
 public class MainActivity extends Activity
@@ -138,21 +139,18 @@ public class MainActivity extends Activity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //// TODO: 27.06.2016 consider to make fragments in the view. Button on the top, like tabs in a web browser.
+        //// TODO: 27.06.2016 Tab 1 is Message tab2 is login tab 3 is settings or whatever.
+
         twitter_consumer_key = getResources().getString(R.string.twitter_consumer_key);
         twitter_consumer_secret = getResources().getString(R.string.twitter_consumer_secret);
         twitter_callback = getResources().getString(R.string.twitter_callback);
         url_twitter_auth = getResources().getString(R.string.url_twitter_auth);
         twitter_oauth_verifier = getResources().getString(R.string.twitter_oauth_verifier);
-        url_twitter_oauth_token = getResources().getString(R.string.url_twitter_oauth_token);
-
-//        String TWITTER_OAUTH_VERIFIER = getResources().getString(R.string.twitter_consumer_secret );
-
-        //setContentView(R.layout.activity_main);
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
-		/* Setting activity layout file */
         setContentView(R.layout.activity_main);
 
         mSharedPreferences = getApplicationContext().getSharedPreferences("MyPref", 0);
@@ -207,17 +205,6 @@ public class MainActivity extends Activity
 
                     Log.e("Twitter OAuth Token", "> " + accessToken.getToken());
 
-                    // Hide login button
-                    //btnLoginTwitter.setVisibility(View.GONE);
-
-                    // Show Update Twitter
-                    //lblUpdate.setVisibility(View.VISIBLE);
-                    //txtUpdate.setVisibility(View.VISIBLE);
-                    //btnUpdateStatus.setVisibility(View.VISIBLE);
-                    //btnLogoutTwitter.setVisibility(View.VISIBLE);
-
-                    // Getting user details from twitter
-                    // For now i am getting his name only
                     long userID = accessToken.getUserId();
                     User user = twitter.showUser(userID);
                     User user2 = twitter.showUser("testjotestra");
