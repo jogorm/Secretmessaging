@@ -90,6 +90,8 @@ public class MainActivity extends Activity
     private Button logOut;
     private Button doTwitterStuff;
 
+    private Button actButton;
+
 
     //Google Stuff
     GoogleAccountCredential mCredential;
@@ -174,7 +176,17 @@ public class MainActivity extends Activity
             public void onClick(View v) {
 
                 logoutFromTwitter();
-                Log.i("hallo", "testing branches");
+                Toast.makeText(MainActivity.this, "You have logged out of Twitter", Toast.LENGTH_LONG).show();
+            }
+        });
+
+        actButton = (Button)findViewById(R.id.newActButton);
+        actButton.setText("Send message");
+        actButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, MessageActivity.class);
+                startActivity(intent);
             }
         });
 
