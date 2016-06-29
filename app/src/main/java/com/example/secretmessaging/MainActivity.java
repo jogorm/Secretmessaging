@@ -57,10 +57,8 @@ package com.example.secretmessaging;
 
 
         import javax.mail.MessagingException;
-
         import javax.mail.Session;
         import javax.mail.internet.InternetAddress;
-
         import javax.mail.internet.MimeMessage;
 
 
@@ -220,7 +218,6 @@ public class MainActivity extends Activity
                     }
                     twitter.directMessages().getDirectMessages();
 
-                    //// TODO: 25.06.2016 Need to move all network stuff to async thread.
                     long testjo = 745178402408169472L;
                     //twitter.directMessages().sendDirectMessage(testjo,"Heisann!");
                     Log.i("hallo", "Sent message");
@@ -304,8 +301,7 @@ public class MainActivity extends Activity
             twitter = factory.getInstance();
 
             try {
-                requestToken = twitter
-                        .getOAuthRequestToken(twitter_callback);
+                requestToken = twitter.getOAuthRequestToken(twitter_callback);
                 this.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(requestToken.getAuthenticationURL())));
             } catch (TwitterException e) {
                 e.printStackTrace();
