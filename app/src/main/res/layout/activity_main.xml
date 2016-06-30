@@ -12,7 +12,7 @@
         android:id="@+id/button"
         android:layout_gravity="center_horizontal|top"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="false"
+        android:layout_centerHorizontal="true"
         />
 
     <TextView
@@ -24,49 +24,8 @@
         android:layout_below="@+id/button"
         android:layout_centerHorizontal="true" />
 
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/messageText"
-        android:layout_below="@+id/textView"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="58dp"
-        android:hint="Message" />
 
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:inputType="textEmailAddress"
-        android:ems="10"
-        android:id="@+id/emailText"
-        android:layout_below="@+id/messageText"
-        android:layout_centerHorizontal="true"
-        android:hint="Recipient email" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Send"
-        android:id="@+id/sendButton"
-        android:layout_below="@+id/emailText"
-        android:layout_centerHorizontal="true" />
-
-    <Button android:id="@+id/btn_login"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="Login with Twitter"
-        android:layout_marginLeft="10dip"
-        android:layout_toRightOf="@id/button"
-        android:layout_marginRight="10dip"
-        android:layout_marginTop="30dip"/>
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Check for email"
-        android:id="@+id/checkForEmail"
-        android:layout_below="@+id/sendButton"
-        android:layout_centerHorizontal="true" />
 
     <Button
         android:layout_width="wrap_content"
@@ -75,13 +34,7 @@
         android:id="@+id/logOutFromTwitter"
         android:layout_below="@+id/btn_login"
         android:layout_centerHorizontal="true" />
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Do twitter stuff"
-        android:id="@+id/doTwitterStuff"
-        android:layout_below="@+id/sendButton"
-        android:layout_centerHorizontal="true" />
+
 
     <Button
         android:layout_width="wrap_content"
@@ -89,6 +42,23 @@
         android:text="New Button"
         android:id="@+id/newActButton"
         android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
+
+    <Button android:id="@+id/btn_login"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Login with Twitter"
+
+        android:layout_below="@+id/logoutGmail"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:text="Log out Gmail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="7dp"
+        android:id="@+id/logoutGmail"
+        android:layout_below="@+id/textView"
         android:layout_centerHorizontal="true" />
 </RelativeLayout>
 

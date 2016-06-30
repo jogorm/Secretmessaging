@@ -7,14 +7,48 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context="com.example.secretmessaging.MessageActivity">
 
-    <TextView
+
+
+    <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello"
-        android:id="@+id/textView2"
-        android:layout_alignParentTop="true"
+        android:id="@+id/messageText"
+        android:layout_below="@+id/textView"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="109dp" />
+        android:layout_marginTop="58dp"
+        android:hint="Message" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textEmailAddress"
+        android:ems="10"
+        android:id="@+id/emailText"
+        android:layout_below="@+id/messageText"
+        android:layout_centerHorizontal="true"
+        android:hint="Recipient email" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Send"
+        android:id="@+id/sendButton"
+        android:layout_below="@+id/emailText"
+        android:layout_centerHorizontal="true" />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Check for email"
+        android:id="@+id/checkForEmail"
+        android:layout_below="@+id/sendButton"
+        android:layout_centerHorizontal="true" />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Send Gmail"
+        android:id="@+id/sendGmail"
+        android:layout_below="@+id/checkForEmail"
+        android:layout_centerHorizontal="true" />
 
     <Button
         android:layout_width="wrap_content"

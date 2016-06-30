@@ -1,94 +1,99 @@
 package com.example.secretmessaging;
 
 
-        import com.google.android.gms.common.ConnectionResult;
-        import com.google.android.gms.common.GoogleApiAvailability;
-        import com.google.api.client.extensions.android.http.AndroidHttp;
-        import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
-        import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException;
-        import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException;
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 
-        import com.google.api.client.http.HttpTransport;
-        import com.google.api.client.json.JsonFactory;
-        import com.google.api.client.json.jackson2.JacksonFactory;
-        import com.google.api.client.repackaged.org.apache.commons.codec.binary.Base64;
-        import com.google.api.client.util.ExponentialBackOff;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.repackaged.org.apache.commons.codec.binary.Base64;
+import com.google.api.client.util.ExponentialBackOff;
 
-        import com.google.api.services.gmail.Gmail;
-        import com.google.api.services.gmail.GmailScopes;
-
-        import com.google.api.services.gmail.model.*;
-
-        import android.Manifest;
-        import android.accounts.AccountManager;
-        import android.app.Activity;
-        import android.app.Dialog;
-        import android.app.ProgressDialog;
-        import android.content.Context;
-        import android.content.Intent;
-        import android.content.SharedPreferences;
-        import android.net.ConnectivityManager;
-        import android.net.NetworkInfo;
-        import android.net.Uri;
-        import android.os.AsyncTask;
-        import android.os.Bundle;
-        import android.os.StrictMode;
-        import android.preference.PreferenceManager;
-        import android.service.textservice.SpellCheckerService;
-        import android.support.annotation.NonNull;
-        import android.text.Html;
-        import android.text.method.ScrollingMovementMethod;
-        import android.util.Log;
-        import android.view.View;
-        import android.view.ViewGroup;
-        import android.widget.Button;
-        import android.widget.EditText;
-        import android.widget.LinearLayout;
-        import android.widget.TextView;
-        import android.widget.Toast;
-
-        import java.io.ByteArrayOutputStream;
-        import java.io.IOException;
-        import java.lang.reflect.Array;
-        import java.util.ArrayList;
-        import java.util.Arrays;
-        import java.util.List;
-        import java.util.Properties;
-
-
-        import javax.mail.MessagingException;
-        import javax.mail.Session;
-        import javax.mail.internet.InternetAddress;
-        import javax.mail.internet.MimeMessage;
+import com.google.api.services.gmail.Gmail;
+import com.google.api.services.gmail.GmailScopes;
 
 
 
-        import pub.devrel.easypermissions.AfterPermissionGranted;
-        import pub.devrel.easypermissions.EasyPermissions;
-        import twitter4j.DirectMessage;
-        import twitter4j.Twitter;
-        import twitter4j.TwitterException;
-        import twitter4j.TwitterFactory;
-        import twitter4j.User;
-        import twitter4j.auth.AccessToken;
-        import twitter4j.auth.RequestToken;
-        import twitter4j.auth.RequestToken;
-        import twitter4j.conf.Configuration;
-        import twitter4j.conf.ConfigurationBuilder;
+import com.google.api.services.gmail.model.*;
+import com.google.gson.Gson;
+
+import android.Manifest;
+import android.accounts.AccountManager;
+import android.app.Activity;
+import android.app.Dialog;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.StrictMode;
+import android.preference.PreferenceManager;
+import android.service.textservice.SpellCheckerService;
+import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.text.Html;
+import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
+import android.webkit.CookieManager;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
 
 
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 
-public class MainActivity extends Activity
+
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.EasyPermissions;
+import twitter4j.DirectMessage;
+import twitter4j.HttpClient;
+import twitter4j.Twitter;
+import twitter4j.TwitterException;
+import twitter4j.TwitterFactory;
+import twitter4j.User;
+import twitter4j.auth.AccessToken;
+import twitter4j.auth.RequestToken;
+import twitter4j.auth.RequestToken;
+import twitter4j.conf.Configuration;
+import twitter4j.conf.ConfigurationBuilder;
+
+
+public class MainActivity extends AppCompatActivity
         implements EasyPermissions.PermissionCallbacks {
-
-    //Twitter Stuff
 
     private static Twitter twitter;
     private static SharedPreferences mSharedPreferences;
     private static RequestToken requestToken;
+
+    //Twitter Stuff
     private Button btnLogin;
     private Button logOut;
-    private Button doTwitterStuff;
 
     private Button actButton;
 
@@ -97,12 +102,9 @@ public class MainActivity extends Activity
     GoogleAccountCredential mCredential;
     private TextView mOutputText;
     private Button mCallApiButton;
-    private Button sendButton;
-    private Button checkButton;
     ProgressDialog mProgress;
-    EditText messageEdit;
-    EditText emailEdit;
-    ArrayList<String> sendValues = new ArrayList<String>();
+    private Button logoutGmail;
+
 
 
     static final int REQUEST_ACCOUNT_PICKER = 1000;
@@ -112,8 +114,8 @@ public class MainActivity extends Activity
 
     private static final String BUTTON_TEXT = "Connect to Gmail";
     private static final String PREF_ACCOUNT_NAME = "accountName";
-    private static final String[ ] SCOPES = { GmailScopes.GMAIL_LABELS, GmailScopes.GMAIL_COMPOSE,
-        GmailScopes.GMAIL_INSERT, GmailScopes.GMAIL_MODIFY, GmailScopes.GMAIL_READONLY, GmailScopes.MAIL_GOOGLE_COM };
+    private static final String[] SCOPES = {GmailScopes.GMAIL_LABELS, GmailScopes.GMAIL_COMPOSE,
+            GmailScopes.GMAIL_INSERT, GmailScopes.GMAIL_MODIFY, GmailScopes.GMAIL_READONLY, GmailScopes.MAIL_GOOGLE_COM};
     private com.google.api.services.gmail.Gmail mService = null;
 
 
@@ -131,16 +133,20 @@ public class MainActivity extends Activity
     static final String PREF_KEY_TWITTER_LOGIN = "isTwitterLoggedIn";
 
 
+    private static Context context;
+
+
+
+
     /**
      * Create the main activity.
+     *
      * @param savedInstanceState previously saved instance data.
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //// TODO: 27.06.2016 consider to make fragments in the view. Button on the top, like tabs in a web browser.
-        //// TODO: 27.06.2016 Tab 1 is Message tab2 is login tab 3 is settings or whatever.
 
         twitter_consumer_key = getResources().getString(R.string.twitter_consumer_key);
         twitter_consumer_secret = getResources().getString(R.string.twitter_consumer_secret);
@@ -152,36 +158,33 @@ public class MainActivity extends Activity
         StrictMode.setThreadPolicy(policy);
 
         setContentView(R.layout.activity_main);
+        MainActivity.context = getApplicationContext();
 
         mSharedPreferences = getApplicationContext().getSharedPreferences("MyPref", 0);
 
 
-
-        btnLogin = (Button)findViewById(R.id.btn_login);
-        btnLogin.setOnClickListener(new View.OnClickListener(){
+        btnLogin = (Button) findViewById(R.id.btn_login);
+        btnLogin.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                try {
-                    loginToTwitter();
-                } catch (TwitterException e) {
-                    e.printStackTrace();
-                }
+                //loginToTwitter();
+                new loginTwitter(MainActivity.getAppContext()).execute();
+
             }
         });
 
-        logOut = (Button)findViewById(R.id.logOutFromTwitter);
+        logOut = (Button) findViewById(R.id.logOutFromTwitter);
         logOut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 logoutFromTwitter();
                 Toast.makeText(MainActivity.this, "You have logged out of Twitter", Toast.LENGTH_LONG).show();
             }
         });
 
-        actButton = (Button)findViewById(R.id.newActButton);
-        actButton.setText("Send message");
+        actButton = (Button) findViewById(R.id.newActButton);
+        actButton.setText("Send messages");
         actButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -190,12 +193,45 @@ public class MainActivity extends Activity
             }
         });
 
+        logoutGmail = (Button)findViewById(R.id.logoutGmail);
+        logoutGmail.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(MainActivity.this, "This function has not been implemented yet.", Toast.LENGTH_LONG).show();
+            }
+        });
+
+
+        mCallApiButton = (Button) findViewById(R.id.button);
+        mCallApiButton.setText(BUTTON_TEXT);
+        mCallApiButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mCallApiButton.setEnabled(false);
+                mOutputText.setText("");
+                getResultsFromApi();
+                mCallApiButton.setEnabled(true);
+            }
+        });
+
+        mOutputText = (TextView) findViewById(R.id.textView);
+        mOutputText.setText("Click the \'" + BUTTON_TEXT + "\' button to test the API.");
+        mProgress = new ProgressDialog(this);
+        mProgress.setMessage("Calling Gmail API ...");
+
+
+        // Initialize credentials and service object.
+        mCredential = GoogleAccountCredential.usingOAuth2(
+                getApplicationContext(), Arrays.asList(SCOPES))
+                .setBackOff(new ExponentialBackOff());
+
+
+
         if (!isTwitterLoggedInAlready()) {
             Uri uri = getIntent().getData();
             if (uri != null && uri.toString().startsWith(twitter_callback)) {
                 // oAuth verifier
-                String verifier = uri
-                        .getQueryParameter(twitter_oauth_verifier);
+                String verifier = uri.getQueryParameter(twitter_oauth_verifier);
 
                 try {
                     // Get the access token
@@ -219,12 +255,11 @@ public class MainActivity extends Activity
                     User user = twitter.showUser(userID);
                     User user2 = twitter.showUser("testjotestra");
                     long abc = user2.getId();
-                    Log.i("hallo", "testjotestra's id is : "+String.valueOf(abc));
+                    Log.i("hallo", "testjotestra's id is : " + String.valueOf(abc));
 
                     List<DirectMessage> messages = twitter.getDirectMessages();
-                    for (DirectMessage message : messages)
-                    {
-                        if(message.getText().contains("Hei")) {
+                    for (DirectMessage message : messages) {
+                        if (message.getText().contains("Hei")) {
                             Log.i("hallo messages", message.toString());
                         }
                     }
@@ -245,105 +280,12 @@ public class MainActivity extends Activity
                 }
             }
         }
-
-        mCallApiButton = (Button)findViewById(R.id.button);
-        mCallApiButton.setText(BUTTON_TEXT);
-        mCallApiButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mCallApiButton.setEnabled(false);
-                mOutputText.setText("");
-                getResultsFromApi();
-                mCallApiButton.setEnabled(true);
-            }
-        });
-
-        mOutputText =  (TextView)findViewById(R.id.textView);
-        mOutputText.setText("Click the \'" + BUTTON_TEXT + "\' button to test the API.");
-        mProgress = new ProgressDialog(this);
-        mProgress.setMessage("Calling Gmail API ...");
-
-        messageEdit = (EditText)findViewById(R.id.messageText);
-        emailEdit = (EditText)findViewById(R.id.emailText);
-
-        sendButton = (Button)findViewById(R.id.sendButton);
-        sendButton.setOnClickListener(
-                new View.OnClickListener() {
-
-                    @Override
-                    public void onClick(View v) {
-                        Log.i("hallo", messageEdit.getText().toString());
-                        Log.i("hallo", emailEdit.getText().toString());
-                        sendValues.clear();
-                        sendValues.add(messageEdit.getText().toString());
-                        sendValues.add(emailEdit.getText().toString());
-
-                        new SendMessage().execute(sendValues);
-                    }
-                });
-
-        checkButton =(Button)findViewById(R.id.checkForEmail);
-        checkButton.setOnClickListener(new View.OnClickListener(){
-
-            @Override
-            public void onClick(View v) {
-                new checkForMessage().execute("Burr");
-            }
-        });
-
-
-        // Initialize credentials and service object.
-        mCredential = GoogleAccountCredential.usingOAuth2(
-                getApplicationContext(), Arrays.asList(SCOPES))
-                .setBackOff(new ExponentialBackOff());
     }
 
-
-
-
-    private void loginToTwitter() throws TwitterException {
-        // Check if already logged in
-        if (!isTwitterLoggedInAlready()) {
-            ConfigurationBuilder builder = new ConfigurationBuilder();
-            builder.setOAuthConsumerKey(twitter_consumer_key);
-            builder.setOAuthConsumerSecret(twitter_consumer_secret);
-            Configuration configuration = builder.build();
-
-            TwitterFactory factory = new TwitterFactory(configuration);
-            twitter = factory.getInstance();
-
-            try {
-                requestToken = twitter.getOAuthRequestToken(twitter_callback);
-                this.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(requestToken.getAuthenticationURL())));
-            } catch (TwitterException e) {
-                e.printStackTrace();
-            }
-        } else {
-            // user already logged into twitter
-
-            ConfigurationBuilder builder = new ConfigurationBuilder();
-            builder.setOAuthConsumerKey(twitter_consumer_key);
-            builder.setOAuthConsumerSecret(twitter_consumer_secret);
-
-            SharedPreferences shared = getPreferences(MODE_PRIVATE);
-
-            String token = mSharedPreferences.getString(PREF_KEY_OAUTH_TOKEN, null);
-            String tokenSecret = mSharedPreferences.getString(PREF_KEY_OAUTH_SECRET, null);
-            AccessToken accessToken = new AccessToken(token, tokenSecret);
-            Twitter twitter = new TwitterFactory(builder.build()).getInstance(accessToken);
-
-            Log.i("hallo token", token);
-            Log.i("hallo tokenSecret", tokenSecret);
-
-            long userID = accessToken.getUserId();
-            User user = twitter.showUser(userID);
-            String username = user.getScreenName();
-
-
-            Toast.makeText(getApplicationContext(), "Already Logged into twitter: " + username, Toast.LENGTH_LONG).show();
-
-        }
+    public static Context getAppContext() {
+        return MainActivity.context;
     }
+
 
     private boolean isTwitterLoggedInAlready() {
         // return twitter login status from Shared Preferences
@@ -360,7 +302,6 @@ public class MainActivity extends Activity
     }
 
 
-
     /**
      * Attempt to call the API, after verifying that all the preconditions are
      * satisfied. The preconditions are: Google Play Services installed, an
@@ -369,14 +310,15 @@ public class MainActivity extends Activity
      * appropriate.
      */
     private void getResultsFromApi() {
-        if (! isGooglePlayServicesAvailable()) {
+        if (!isGooglePlayServicesAvailable()) {
             acquireGooglePlayServices();
         } else if (mCredential.getSelectedAccountName() == null) {
             chooseAccount();
-        } else if (! isDeviceOnline()) {
+        } else if (!isDeviceOnline()) {
             mOutputText.setText("No network connection available.");
         } else {
             new MakeRequestTask(mCredential).execute();
+
         }
     }
 
@@ -396,7 +338,8 @@ public class MainActivity extends Activity
 
             String accountName = getPreferences(Context.MODE_PRIVATE).getString(PREF_ACCOUNT_NAME, null);
 
-            if (accountName != null) {mCredential.setSelectedAccountName(accountName);
+            if (accountName != null) {
+                mCredential.setSelectedAccountName(accountName);
                 getResultsFromApi();
             } else {
                 // Start a dialog from which the user can choose an account
@@ -416,11 +359,12 @@ public class MainActivity extends Activity
      * Called when an activity launched here (specifically, AccountPicker
      * and authorization) exits, giving you the requestCode you started it with,
      * the resultCode it returned, and any additional data from it.
+     *
      * @param requestCode code indicating which activity result is incoming.
-     * @param resultCode code indicating the result of the incoming
-     *     activity result.
-     * @param data Intent (containing result data) returned by incoming
-     *     activity result.
+     * @param resultCode  code indicating the result of the incoming
+     *                    activity result.
+     * @param data        Intent (containing result data) returned by incoming
+     *                    activity result.
      */
 
 
@@ -439,12 +383,11 @@ public class MainActivity extends Activity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         //loginButton.onActivityResult(requestCode, resultCode, data);
-        switch(requestCode) {
+        switch (requestCode) {
             case REQUEST_GOOGLE_PLAY_SERVICES:
                 if (resultCode != RESULT_OK) {
                     mOutputText.setText(
-                            "This app requires Google Play Services. Please install " +
-                                    "Google Play Services on your device and relaunch this app.");
+                            "This app requires Google Play Services. Please install " + "Google Play Services on your device and relaunch this app.");
                 } else {
                     getResultsFromApi();
                 }
@@ -475,14 +418,15 @@ public class MainActivity extends Activity
 
     /**
      * Respond to requests for permissions at runtime for API 23 and above.
-     * @param requestCode The request code passed in
-     *     requestPermissions(android.app.Activity, String, int, String[])
-     * @param permissions The requested permissions. Never null.
+     *
+     * @param requestCode  The request code passed in
+     *                     requestPermissions(android.app.Activity, String, int, String[])
+     * @param permissions  The requested permissions. Never null.
      * @param grantResults The grant results for the corresponding permissions
-     *     which is either PERMISSION_GRANTED or PERMISSION_DENIED. Never null.
+     *                     which is either PERMISSION_GRANTED or PERMISSION_DENIED. Never null.
      */
     @Override
-    public void onRequestPermissionsResult(int requestCode,@NonNull String[] permissions,@NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         EasyPermissions.onRequestPermissionsResult(
                 requestCode, permissions, grantResults, this);
@@ -491,9 +435,10 @@ public class MainActivity extends Activity
     /**
      * Callback for when a permission is granted using the EasyPermissions
      * library.
+     *
      * @param requestCode The request code associated with the requested
-     *         permission
-     * @param list The requested permission list. Never null.
+     *                    permission
+     * @param list        The requested permission list. Never null.
      */
     @Override
     public void onPermissionsGranted(int requestCode, List<String> list) {
@@ -503,9 +448,10 @@ public class MainActivity extends Activity
     /**
      * Callback for when a permission is denied using the EasyPermissions
      * library.
+     *
      * @param requestCode The request code associated with the requested
-     *         permission
-     * @param list The requested permission list. Never null.
+     *                    permission
+     * @param list        The requested permission list. Never null.
      */
     @Override
     public void onPermissionsDenied(int requestCode, List<String> list) {
@@ -513,21 +459,22 @@ public class MainActivity extends Activity
     }
 
 
-
     /**
      * Checks whether the device currently has a network connection.
+     *
      * @return true if the device has a network connection, false otherwise.
      */
     private boolean isDeviceOnline() {
-        ConnectivityManager connMgr =(ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         return (networkInfo != null && networkInfo.isConnected());
     }
 
     /**
      * Check that Google Play services APK is installed and up to date.
+     *
      * @return true if Google Play Services is available and up to
-     *     date on this device; false otherwise.
+     * date on this device; false otherwise.
      */
     private boolean isGooglePlayServicesAvailable() {
         GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
@@ -551,17 +498,17 @@ public class MainActivity extends Activity
     /**
      * Display an error dialog showing that Google Play Services is missing
      * or out of date.
+     *
      * @param connectionStatusCode code describing the presence (or lack of)
-     *     Google Play Services on this device.
+     *                             Google Play Services on this device.
      */
     void showGooglePlayServicesAvailabilityErrorDialog(final int connectionStatusCode) {
         GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
-        Dialog dialog = apiAvailability.getErrorDialog(
-                MainActivity.this,
-                connectionStatusCode,
-                REQUEST_GOOGLE_PLAY_SERVICES);
+        Dialog dialog = apiAvailability.getErrorDialog(MainActivity.this, connectionStatusCode, REQUEST_GOOGLE_PLAY_SERVICES);
         dialog.show();
+
     }
+
 
     /**
      * An asynchronous task that handles the Gmail API call.
@@ -574,14 +521,24 @@ public class MainActivity extends Activity
         public MakeRequestTask(GoogleAccountCredential credential) {
             HttpTransport transport = AndroidHttp.newCompatibleTransport();
             JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-            mService = new com.google.api.services.gmail.Gmail.Builder(
-                    transport, jsonFactory, credential)
-                    .setApplicationName("Gmail API Android Quickstart")
-                    .build();
+            mService = new com.google.api.services.gmail.Gmail.Builder(transport, jsonFactory, credential).setApplicationName("Gmail API Android Quickstart").build();
+            Gson gson = new Gson();
+            String json = gson.toJson(mService);
+            SharedPreferences.Editor prefsEditor = mSharedPreferences.edit();
+            // TODO: 30.06.2016 Have to figure out why this is causing problems. Or if there is another way of doing this? 
+
+            //This line doesn't work
+            prefsEditor.putString("GoogleService", json);
+
+
+            prefsEditor.commit();
+
         }
+
 
         /**
          * Background task to call Gmail API.
+         *
          * @param params no parameters needed for this task.
          */
         @Override
@@ -598,6 +555,7 @@ public class MainActivity extends Activity
 
         /**
          * Fetch a list of Gmail labels attached to the specified account.
+         *
          * @return List of Strings labels.
          * @throws IOException
          */
@@ -625,7 +583,7 @@ public class MainActivity extends Activity
         }
 
         public List<Message> listMessagesMatchingQuery(Gmail service, String userId,
-                                                              String query) throws IOException {
+                                                       String query) throws IOException {
             ListMessagesResponse response = service.users().messages().list(userId).setQ(query).execute();
 
             List<Message> messages = new ArrayList<Message>();
@@ -687,7 +645,7 @@ public class MainActivity extends Activity
 
     }
 
-    private class SendMessage extends AsyncTask<ArrayList<String>,String, Void>{
+    private class SendMessage extends AsyncTask<ArrayList<String>, String, Void> {
 
         public void sendMessage(Gmail service, String userId, MimeMessage email)
                 throws MessagingException, IOException {
@@ -733,7 +691,7 @@ public class MainActivity extends Activity
 
             try {
                 sendMessage(mService, "me", createEmail(email, "me", "test", message));
-                Log.i("hallo", "Sent message: " + message + " to email: " +email);
+                Log.i("hallo", "Sent message: " + message + " to email: " + email);
             } catch (MessagingException e) {
                 e.printStackTrace();
             } catch (IOException e) {
@@ -756,7 +714,7 @@ public class MainActivity extends Activity
 
     }
 
-    private class checkForMessage extends AsyncTask<String, String, Void>{
+    private class checkForMessage extends AsyncTask<String, String, Void> {
 
         @Override
         protected Void doInBackground(String... params) {
@@ -769,7 +727,7 @@ public class MainActivity extends Activity
         }
 
         public List<Message> listMessagesMatchingQuery(Gmail service, String userId,
-                                                              String query) throws IOException {
+                                                       String query) throws IOException {
             ListMessagesResponse response = service.users().messages().list(userId).setQ(query).execute();
 
             List<Message> messages = new ArrayList<Message>();
@@ -789,7 +747,7 @@ public class MainActivity extends Activity
                 Log.i("hallo", message.toPrettyString());
                 String theMessage = getMessage(mService, "me", message.getId());
                 String keyword = "Ticket";
-                if(theMessage.contains("Ticket")){
+                if (theMessage.contains("Ticket")) {
                     Log.i("hallo", "Found the email");
                     Log.i("Hallo", "Email snippet: " + theMessage);
                 }
@@ -798,14 +756,6 @@ public class MainActivity extends Activity
             return messages;
         }
 
-        /*public Message getMessage(Gmail service, String userId, String messageId)
-                throws IOException {
-            Message message = service.users().messages().get(userId, messageId).execute();
-
-            System.out.println("Message snippet: " + message.getSnippet());
-
-            return message;
-        }*/
         public String getMessage(Gmail service, String userId, String messageId)
                 throws IOException {
             Message message = service.users().messages().get(userId, messageId).execute();
@@ -816,8 +766,81 @@ public class MainActivity extends Activity
         }
     }
 
+    private class loginTwitter extends AsyncTask<String, String, Void> {
+        Context mContext;
+        String username;
+
+        public loginTwitter(Context context) {
+            mContext = context;
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+            if (!isTwitterLoggedInAlready()) {
+                ConfigurationBuilder builder = new ConfigurationBuilder();
+                builder.setOAuthConsumerKey(twitter_consumer_key);
+                builder.setOAuthConsumerSecret(twitter_consumer_secret);
+                Configuration configuration = builder.build();
+
+                TwitterFactory factory = new TwitterFactory(configuration);
+                twitter = factory.getInstance();
+
+                try {
+                    requestToken = twitter.getOAuthRequestToken(twitter_callback);
+
+                } catch (TwitterException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                // user already logged into twitter
+
+                ConfigurationBuilder builder = new ConfigurationBuilder();
+                builder.setOAuthConsumerKey(twitter_consumer_key);
+                builder.setOAuthConsumerSecret(twitter_consumer_secret);
+
+                SharedPreferences shared = getPreferences(MODE_PRIVATE);
+
+                String token = mSharedPreferences.getString(PREF_KEY_OAUTH_TOKEN, null);
+                String tokenSecret = mSharedPreferences.getString(PREF_KEY_OAUTH_SECRET, null);
+                AccessToken accessToken = new AccessToken(token, tokenSecret);
+                Twitter twitter = new TwitterFactory(builder.build()).getInstance(accessToken);
+
+                Log.i("hallo token", token);
+                Log.i("hallo tokenSecret", tokenSecret);
+
+                long userID = accessToken.getUserId();
+                User user = null;
+                try {
+                    user = twitter.showUser(userID);
+                } catch (TwitterException e) {
+                    e.printStackTrace();
+                }
+                username = user.getScreenName();
+
+
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+
+            super.onPostExecute(aVoid);
+            if (!isTwitterLoggedInAlready()) {
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(requestToken.getAuthenticationURL()));
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+
+                mContext.startActivity(intent);
+            } else {
+                Toast.makeText(getApplicationContext(), "Already Logged into twitter: " + username, Toast.LENGTH_LONG).show();
+            }
+
+
+        }
+    }
+
+
 
 
 }
-
-
