@@ -13,14 +13,22 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.repackaged.org.apache.commons.codec.binary.Base64;
+import com.google.api.client.util.ExponentialBackOff;
 import com.google.api.services.gmail.Gmail;
+import com.google.api.services.gmail.GmailScopes;
 import com.google.api.services.gmail.model.Message;
 import com.google.gson.Gson;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Properties;
 
 import javax.mail.MessagingException;
@@ -65,6 +73,9 @@ public class MessageActivity extends AppCompatActivity {
 
 
     private com.google.api.services.gmail.Gmail mService = null;
+    GoogleAccountCredential mCredential;
+    private static final String[] SCOPES = {GmailScopes.GMAIL_LABELS, GmailScopes.GMAIL_COMPOSE, GmailScopes.GMAIL_INSERT, GmailScopes.GMAIL_MODIFY, GmailScopes.GMAIL_READONLY, GmailScopes.MAIL_GOOGLE_COM};
+
 
 
 
@@ -72,6 +83,9 @@ public class MessageActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_message);
+
+        final GmailConnector gCon = new GmailConnector(this);
+        mService = gCon.getService();
 
         twitter_consumer_key = getResources().getString(R.string.twitter_consumer_key);
         twitter_consumer_secret = getResources().getString(R.string.twitter_consumer_secret);
@@ -148,10 +162,20 @@ public class MessageActivity extends AppCompatActivity {
         sendButtonGmail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Gson gson = new Gson();
-                String json = mSharedPreferences.getString("GoogleService", " ");
-                mService = gson.fromJson(json, mService.getClass());
+//                Gson gson = new Gson();
+//                String json = mSharedPreferences.getString("GoogleService", " ");
+//                mService = gson.fromJson(json, mService.getClass());
 //                new SendMessage().execute();
+
+
+/*                mCredential = GoogleAccountCredential.usingOAuth2(
+                        getApplicationContext(), Arrays.asList(SCOPES))
+                        .setBackOff(new ExponentialBackOff());
+                mService = new com.google.api.services.gmail.Gmail.Builder(transport, jsonFactory, mCredential).setApplicationName("Gmail API Android Quickstart").build();*/
+
+
+
+
                 sendValues.clear();
                 sendValues.add(messageEdit.getText().toString());
                 sendValues.add(emailEdit.getText().toString());

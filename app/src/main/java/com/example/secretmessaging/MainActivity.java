@@ -20,11 +20,9 @@ import com.google.api.services.gmail.GmailScopes;
 
 
 import com.google.api.services.gmail.model.*;
-import com.google.gson.Gson;
 
 import android.Manifest;
 import android.accounts.AccountManager;
-import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -34,29 +32,18 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
-import android.preference.PreferenceManager;
-import android.service.textservice.SpellCheckerService;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.text.Html;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-import android.webkit.CookieManager;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -84,12 +71,13 @@ import twitter4j.conf.Configuration;
 import twitter4j.conf.ConfigurationBuilder;
 
 
-public class MainActivity extends AppCompatActivity
-        implements EasyPermissions.PermissionCallbacks {
+public class MainActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks  {
 
     private static Twitter twitter;
     private static SharedPreferences mSharedPreferences;
     private static RequestToken requestToken;
+
+    private static SharedPreferences settings;
 
     //Twitter Stuff
     private Button btnLogin;
@@ -114,8 +102,7 @@ public class MainActivity extends AppCompatActivity
 
     private static final String BUTTON_TEXT = "Connect to Gmail";
     private static final String PREF_ACCOUNT_NAME = "accountName";
-    private static final String[] SCOPES = {GmailScopes.GMAIL_LABELS, GmailScopes.GMAIL_COMPOSE,
-            GmailScopes.GMAIL_INSERT, GmailScopes.GMAIL_MODIFY, GmailScopes.GMAIL_READONLY, GmailScopes.MAIL_GOOGLE_COM};
+    private static final String[] SCOPES = {GmailScopes.GMAIL_LABELS, GmailScopes.GMAIL_COMPOSE, GmailScopes.GMAIL_INSERT, GmailScopes.GMAIL_MODIFY, GmailScopes.GMAIL_READONLY, GmailScopes.MAIL_GOOGLE_COM};
     private com.google.api.services.gmail.Gmail mService = null;
 
 
@@ -161,6 +148,16 @@ public class MainActivity extends AppCompatActivity
         MainActivity.context = getApplicationContext();
 
         mSharedPreferences = getApplicationContext().getSharedPreferences("MyPref", 0);
+        String accountName = mSharedPreferences.getString(PREF_ACCOUNT_NAME, null);
+
+        /*if(accountName == null){
+    
+            
+            //// TODO: 04.07.2016 Need to figure out how to set this pref account name from the start. Not being put in before onactivitresult, and that doesnt always run.  
+            // TODO: 04.07.2016 maybe on a different device?
+            SharedPreferences.Editor edi = mSharedPreferences.edit();
+            edi.putString(PREF_ACCOUNT_NAME, settings.getString(PREF_ACCOUNT_NAME, null));
+        }*/
 
 
         btnLogin = (Button) findViewById(R.id.btn_login);
@@ -355,18 +352,6 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    /**
-     * Called when an activity launched here (specifically, AccountPicker
-     * and authorization) exits, giving you the requestCode you started it with,
-     * the resultCode it returned, and any additional data from it.
-     *
-     * @param requestCode code indicating which activity result is incoming.
-     * @param resultCode  code indicating the result of the incoming
-     *                    activity result.
-     * @param data        Intent (containing result data) returned by incoming
-     *                    activity result.
-     */
-
 
 
    /* @Override
@@ -378,11 +363,9 @@ public class MainActivity extends AppCompatActivity
     }*/
 
 
-    //Can't find out where "onActivityResult" is called from twitter method.
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        //loginButton.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case REQUEST_GOOGLE_PLAY_SERVICES:
                 if (resultCode != RESULT_OK) {
@@ -393,16 +376,17 @@ public class MainActivity extends AppCompatActivity
                 }
                 break;
             case REQUEST_ACCOUNT_PICKER:
-                if (resultCode == RESULT_OK && data != null &&
-                        data.getExtras() != null) {
-                    String accountName =
-                            data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
+                if (resultCode == RESULT_OK && data != null && data.getExtras() != null) {
+                    String accountName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
                     if (accountName != null) {
-                        SharedPreferences settings =
-                                getPreferences(Context.MODE_PRIVATE);
+                        settings = getPreferences(Context.MODE_PRIVATE);
                         SharedPreferences.Editor editor = settings.edit();
                         editor.putString(PREF_ACCOUNT_NAME, accountName);
-                        editor.apply();
+
+                        SharedPreferences.Editor edi = mSharedPreferences.edit();
+                        edi.putString(PREF_ACCOUNT_NAME, accountName);
+                        edi.commit();
+
                         mCredential.setSelectedAccountName(accountName);
                         getResultsFromApi();
                     }
@@ -522,16 +506,17 @@ public class MainActivity extends AppCompatActivity
             HttpTransport transport = AndroidHttp.newCompatibleTransport();
             JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
             mService = new com.google.api.services.gmail.Gmail.Builder(transport, jsonFactory, credential).setApplicationName("Gmail API Android Quickstart").build();
-            Gson gson = new Gson();
+            /*Gson gson = new Gson();
             String json = gson.toJson(mService);
             SharedPreferences.Editor prefsEditor = mSharedPreferences.edit();
-            // TODO: 30.06.2016 Have to figure out why this is causing problems. Or if there is another way of doing this? 
+            // TODO: 30.06.2016 Have to figure out why this is causing problems. Or if there is another way of doing this?
+
 
             //This line doesn't work
             prefsEditor.putString("GoogleService", json);
 
 
-            prefsEditor.commit();
+            prefsEditor.commit();*/
 
         }
 
@@ -652,8 +637,6 @@ public class MainActivity extends AppCompatActivity
             Message message = createMessageWithEmail(email);
             message = service.users().messages().send(userId, message).execute();
 
-            System.out.println("Message id: " + message.getId());
-            System.out.println(message.toPrettyString());
         }
 
         public Message createMessageWithEmail(MimeMessage email)
@@ -797,9 +780,6 @@ public class MainActivity extends AppCompatActivity
                 ConfigurationBuilder builder = new ConfigurationBuilder();
                 builder.setOAuthConsumerKey(twitter_consumer_key);
                 builder.setOAuthConsumerSecret(twitter_consumer_secret);
-
-                SharedPreferences shared = getPreferences(MODE_PRIVATE);
-
                 String token = mSharedPreferences.getString(PREF_KEY_OAUTH_TOKEN, null);
                 String tokenSecret = mSharedPreferences.getString(PREF_KEY_OAUTH_SECRET, null);
                 AccessToken accessToken = new AccessToken(token, tokenSecret);
