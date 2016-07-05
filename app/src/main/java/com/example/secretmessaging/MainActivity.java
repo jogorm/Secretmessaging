@@ -289,6 +289,8 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         return mSharedPreferences.getBoolean(PREF_KEY_TWITTER_LOGIN, false);
     }
 
+    
+    //// TODO: 05.07.2016 move this method to twitterconnector. Find out where it is used, change logic there to point to twitterconnector.
     private void logoutFromTwitter() {
         // Clear the shared preferences
         SharedPreferences.Editor e = mSharedPreferences.edit();
@@ -630,7 +632,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
     }
 
-    private class SendMessage extends AsyncTask<ArrayList<String>, String, Void> {
+    /*private class SendMessage extends AsyncTask<ArrayList<String>, String, Void> {
 
         public void sendMessage(Gmail service, String userId, MimeMessage email)
                 throws MessagingException, IOException {
@@ -695,7 +697,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             toast.show();
         }
 
-    }
+    }*/
 
     private class checkForMessage extends AsyncTask<String, String, Void> {
 

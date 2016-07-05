@@ -31,12 +31,8 @@ import javax.mail.internet.MimeMessage;
 
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
-import twitter4j.TwitterFactory;
 import twitter4j.User;
-import twitter4j.auth.AccessToken;
 import twitter4j.auth.RequestToken;
-import twitter4j.conf.ConfigurationBuilder;
-
 
 
 public class MessageActivity extends AppCompatActivity {
@@ -62,6 +58,8 @@ public class MessageActivity extends AppCompatActivity {
     ProgressDialog mProgress;
     EditText messageEdit;
     EditText emailEdit;
+    EditText twitterEdit;
+
     ArrayList<String> sendValues = new ArrayList<String>();
 
 
@@ -77,8 +75,13 @@ public class MessageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_message);
 
+        mProgress = new ProgressDialog(this);
+
         final GmailConnector gCon = new GmailConnector(this);
         mService = gCon.getService();
+
+        TwitterConnector tCon = new TwitterConnector(this);
+        twitter = tCon.getTwitter();
 
         twitter_consumer_key = getResources().getString(R.string.twitter_consumer_key);
         twitter_consumer_secret = getResources().getString(R.string.twitter_consumer_secret);
@@ -104,6 +107,8 @@ public class MessageActivity extends AppCompatActivity {
 
         messageEdit = (EditText)findViewById(R.id.messageText);
         emailEdit = (EditText)findViewById(R.id.emailText);
+        twitterEdit = (EditText)findViewById(R.id.twitterText);
+
 
         sendButton = (Button)findViewById(R.id.sendButton);
         sendButton.setOnClickListener(
@@ -113,41 +118,21 @@ public class MessageActivity extends AppCompatActivity {
                     public void onClick(View v) {
                         String email = emailEdit.getText().toString();
                         String mess = messageEdit.getText().toString();
+                        String twitt = twitterEdit.getText().toString();
 
                         Log.i("hallo", mess);
                         Log.i("hallo", email);
-//                        sendValues.clear();
-//                        sendValues.add(messageEdit.getText().toString());
-//                        sendValues.add(emailEdit.getText().toString());
+                        Log.i("hallo", twitt);
 
-                        //new SendMessage().execute(sendValues);
+                        sendValues.clear();
+                        sendValues.add(messageEdit.getText().toString());
+                        sendValues.add(emailEdit.getText().toString());
+                        sendValues.add(twitterEdit.getText().toString());
 
-                        ConfigurationBuilder builder = new ConfigurationBuilder();
-                        builder.setOAuthConsumerKey(twitter_consumer_key);
-                        builder.setOAuthConsumerSecret(twitter_consumer_secret);
+                        new SendGmail().execute(sendValues);
+                        new SendTwitter().execute(sendValues);
 
-                        SharedPreferences shared = getPreferences(MODE_PRIVATE);
 
-                        String token = mSharedPreferences.getString(PREF_KEY_OAUTH_TOKEN, null);
-                        String tokenSecret = mSharedPreferences.getString(PREF_KEY_OAUTH_SECRET, null);
-                        AccessToken accessToken = new AccessToken(token, tokenSecret);
-                        Twitter twitter = new TwitterFactory(builder.build()).getInstance(accessToken);
-
-                        User user;
-                        long userId = 0;
-                        try {
-                            user = twitter.users().showUser(email);
-                            Log.i("Hallo", email + "'s user id is: " + user.getId());
-                            userId = user.getId();
-                        } catch (TwitterException e) {
-                            e.printStackTrace();
-                            Toast.makeText(MessageActivity.this, "Is that a real user? Try again.", Toast.LENGTH_SHORT).show();
-                        }
-                        try {
-                            twitter.directMessages().sendDirectMessage(userId,"Heisann!");
-                        } catch (TwitterException e) {
-                            e.printStackTrace();
-                        }
                     }
                 });
 
@@ -155,25 +140,12 @@ public class MessageActivity extends AppCompatActivity {
         sendButtonGmail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                Gson gson = new Gson();
-//                String json = mSharedPreferences.getString("GoogleService", " ");
-//                mService = gson.fromJson(json, mService.getClass());
-//                new SendMessage().execute();
-
-
-/*                mCredential = GoogleAccountCredential.usingOAuth2(
-                        getApplicationContext(), Arrays.asList(SCOPES))
-                        .setBackOff(new ExponentialBackOff());
-                mService = new com.google.api.services.gmail.Gmail.Builder(transport, jsonFactory, mCredential).setApplicationName("Gmail API Android Quickstart").build();*/
-
-
-
 
                 sendValues.clear();
                 sendValues.add(messageEdit.getText().toString());
                 sendValues.add(emailEdit.getText().toString());
 
-                new SendMessage().execute(sendValues);
+                new SendGmail().execute(sendValues);
 
             }
         });
@@ -188,7 +160,7 @@ public class MessageActivity extends AppCompatActivity {
             }
         });
     }
-    private class SendMessage extends AsyncTask<ArrayList<String>, String, Void> {
+    private class SendGmail extends AsyncTask<ArrayList<String>, String, Void> {
 
         public void sendMessage(Gmail service, String userId, MimeMessage email)
                 throws MessagingException, IOException {
@@ -229,7 +201,7 @@ public class MessageActivity extends AppCompatActivity {
         protected Void doInBackground(ArrayList<String>... params) {
             String message = params[0].get(0);
             String email = params[0].get(1);
-
+            mProgress.show();
             try {
                 sendMessage(mService, "me", createEmail(email, "me", "test", message));
                 Log.i("hallo", "Sent message: " + message + " to email: " + email);
@@ -248,10 +220,46 @@ public class MessageActivity extends AppCompatActivity {
             Context context = getApplicationContext();
             CharSequence text = "Message sent!";
             int duration = Toast.LENGTH_SHORT;
+            mProgress.hide();
 
             Toast toast = Toast.makeText(context, text, duration);
             toast.show();
         }
 
+    }
+
+    private class SendTwitter extends AsyncTask<ArrayList<String>, String, Void>{
+
+        @Override
+        protected Void doInBackground(ArrayList<String>... params) {
+            String twitt = params[0].get(2);
+            String mess = params[0].get(0);
+
+            Log.i("inside sendtwitt mess:" , mess);
+            Log.i("inside sendtwitt twitt:" , twitt);
+
+            User user;
+            long userId = 0;
+            try {
+                user = twitter.users().showUser(twitt);
+                userId = user.getId();
+            } catch (TwitterException e) {
+                e.printStackTrace();
+                Toast.makeText(MessageActivity.this, "Is that a real user? Try again.", Toast.LENGTH_SHORT).show();
+            }
+            try {
+                twitter.directMessages().sendDirectMessage(userId,mess);
+            } catch (TwitterException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+        }
     }
 }
