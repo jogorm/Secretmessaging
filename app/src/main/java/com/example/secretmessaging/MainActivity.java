@@ -11,13 +11,8 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecovera
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.repackaged.org.apache.commons.codec.binary.Base64;
 import com.google.api.client.util.ExponentialBackOff;
-
-import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.GmailScopes;
-
-
 
 import com.google.api.services.gmail.model.*;
 
@@ -42,30 +37,18 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
-
-
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-
 
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 import twitter4j.DirectMessage;
-import twitter4j.HttpClient;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 import twitter4j.User;
 import twitter4j.auth.AccessToken;
-import twitter4j.auth.RequestToken;
 import twitter4j.auth.RequestToken;
 import twitter4j.conf.Configuration;
 import twitter4j.conf.ConfigurationBuilder;
@@ -79,10 +62,8 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
     private static SharedPreferences settings;
 
-    //Twitter Stuff
     private Button btnLogin;
     private Button logOut;
-
     private Button actButton;
 
 
@@ -92,8 +73,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     private Button mCallApiButton;
     ProgressDialog mProgress;
     private Button logoutGmail;
-
-
 
     static final int REQUEST_ACCOUNT_PICKER = 1000;
     static final int REQUEST_AUTHORIZATION = 1001;
@@ -105,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     private static final String[] SCOPES = {GmailScopes.GMAIL_LABELS, GmailScopes.GMAIL_COMPOSE, GmailScopes.GMAIL_INSERT, GmailScopes.GMAIL_MODIFY, GmailScopes.GMAIL_READONLY, GmailScopes.MAIL_GOOGLE_COM};
     private com.google.api.services.gmail.Gmail mService = null;
 
-
+    //Twitter stuff
     String twitter_consumer_key;
     String twitter_consumer_secret;
     String twitter_callback;
@@ -119,11 +98,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     static final String PREF_KEY_OAUTH_SECRET = "oauth_token_secret";
     static final String PREF_KEY_TWITTER_LOGIN = "isTwitterLoggedIn";
 
-
     private static Context context;
-
-
-
 
     /**
      * Create the main activity.
@@ -149,16 +124,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
         mSharedPreferences = getApplicationContext().getSharedPreferences("MyPref", 0);
         String accountName = mSharedPreferences.getString(PREF_ACCOUNT_NAME, null);
-
-        /*if(accountName == null){
-    
-            
-            //// TODO: 04.07.2016 Need to figure out how to set this pref account name from the start. Not being put in before onactivitresult, and that doesnt always run.  
-            // TODO: 04.07.2016 maybe on a different device?
-            SharedPreferences.Editor edi = mSharedPreferences.edit();
-            edi.putString(PREF_ACCOUNT_NAME, settings.getString(PREF_ACCOUNT_NAME, null));
-        }*/
-
 
         btnLogin = (Button) findViewById(R.id.btn_login);
         btnLogin.setOnClickListener(new View.OnClickListener() {
@@ -346,23 +311,13 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             }
         } else {
             // Request the GET_ACCOUNTS permission via a user dialog
-            EasyPermissions.requestPermissions(
-                    this,
+            EasyPermissions.requestPermissions(this,
                     "This app needs to access your Google account (via Contacts).",
                     REQUEST_PERMISSION_GET_ACCOUNTS,
                     Manifest.permission.GET_ACCOUNTS);
         }
     }
 
-
-
-   /* @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        // Make sure that the loginButton hears the result from any
-        // Activity that it triggered.
-        loginButton.onActivityResult(requestCode, resultCode, data);
-    }*/
 
 
     @Override
@@ -501,97 +456,20 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
      * Placing the API calls in their own task ensures the UI stays responsive.
      */
     private class MakeRequestTask extends AsyncTask<ArrayList<String>, String, List<Message>> {
-        //private com.google.api.services.gmail.Gmail mService = null;
         private Exception mLastError = null;
 
         public MakeRequestTask(GoogleAccountCredential credential) {
             HttpTransport transport = AndroidHttp.newCompatibleTransport();
             JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
             mService = new com.google.api.services.gmail.Gmail.Builder(transport, jsonFactory, credential).setApplicationName("Gmail API Android Quickstart").build();
-            /*Gson gson = new Gson();
-            String json = gson.toJson(mService);
-            SharedPreferences.Editor prefsEditor = mSharedPreferences.edit();
-            // TODO: 30.06.2016 Have to figure out why this is causing problems. Or if there is another way of doing this?
-
-
-            //This line doesn't work
-            prefsEditor.putString("GoogleService", json);
-
-
-            prefsEditor.commit();*/
-
         }
 
 
-        /**
-         * Background task to call Gmail API.
-         *
-         * @param params no parameters needed for this task.
-         */
         @Override
         //protected List<String> doInBackground(Void... params) {
         protected List<Message> doInBackground(ArrayList<String>... params) {
-            try {
-                return listMessagesMatchingQuery(mService, "me", "Burr");
-            } catch (Exception e) {
-                mLastError = e;
-                cancel(true);
-                return null;
-            }
+          return null;
         }
-
-        /**
-         * Fetch a list of Gmail labels attached to the specified account.
-         *
-         * @return List of Strings labels.
-         * @throws IOException
-         */
-        private List<String> getDataFromApi() throws IOException {
-            // Get the labels in the user's account.
-            String user = "me";
-            List<String> labels = new ArrayList<String>();
-            ListLabelsResponse listResponse =
-                    mService.users().labels().list(user).execute();
-            for (Label label : listResponse.getLabels()) {
-                labels.add(label.getName());
-            }
-
-            return labels;
-        }
-
-        public Message getMessage(Gmail service, String userId, String messageId)
-                throws IOException {
-            Message message = service.users().messages().get(userId, messageId).execute();
-
-            //System.out.println("Message snippet: " + message.getSnippet());
-            Log.i("message", "Message snippet: " + message.getSnippet());
-
-            return message;
-        }
-
-        public List<Message> listMessagesMatchingQuery(Gmail service, String userId,
-                                                       String query) throws IOException {
-            ListMessagesResponse response = service.users().messages().list(userId).setQ(query).execute();
-
-            List<Message> messages = new ArrayList<Message>();
-            while (response.getMessages() != null) {
-                messages.addAll(response.getMessages());
-                if (response.getNextPageToken() != null) {
-                    String pageToken = response.getNextPageToken();
-                    response = service.users().messages().list(userId).setQ(query)
-                            .setPageToken(pageToken).execute();
-                } else {
-                    break;
-                }
-            }
-
-            for (Message message : messages) {
-                System.out.println(message.toPrettyString());
-            }
-
-            return messages;
-        }
-
 
         @Override
         protected void onPreExecute() {
@@ -602,12 +480,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         @Override
         protected void onPostExecute(List<Message> output) {
             mProgress.hide();
-            if (output == null || output.size() == 0) {
-                mOutputText.setText("No results returned.");
-            } else {
-                //output.add(0, "Data retrieved using the Gmail API:");
-                //mOutputText.setText(TextUtils.join("\n", output));
-            }
+                mOutputText.setText("Logged in to Gmail");
         }
 
         @Override
@@ -630,125 +503,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         }
 
 
-    }
-
-    /*private class SendMessage extends AsyncTask<ArrayList<String>, String, Void> {
-
-        public void sendMessage(Gmail service, String userId, MimeMessage email)
-                throws MessagingException, IOException {
-            Message message = createMessageWithEmail(email);
-            message = service.users().messages().send(userId, message).execute();
-
-        }
-
-        public Message createMessageWithEmail(MimeMessage email)
-                throws MessagingException, IOException {
-            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-            email.writeTo(bytes);
-            String encodedEmail = Base64.encodeBase64URLSafeString(bytes.toByteArray());
-            Message message = new Message();
-            message.setRaw(encodedEmail);
-            return message;
-        }
-
-        public MimeMessage createEmail(String to, String from, String subject,
-                                       String bodyText) throws MessagingException {
-            Properties props = new Properties();
-            Session session = Session.getDefaultInstance(props, null);
-
-            MimeMessage email = new MimeMessage(session);
-            InternetAddress tAddress = new InternetAddress(to);
-            InternetAddress fAddress = new InternetAddress(from);
-
-            email.setFrom(new InternetAddress(from));
-            email.addRecipient(javax.mail.Message.RecipientType.TO,
-                    new InternetAddress(to));
-            email.setSubject(subject);
-            email.setText(bodyText);
-            return email;
-        }
-
-
-        @Override
-        protected Void doInBackground(ArrayList<String>... params) {
-            String message = params[0].get(0);
-            String email = params[0].get(1);
-
-            try {
-                sendMessage(mService, "me", createEmail(email, "me", "test", message));
-                Log.i("hallo", "Sent message: " + message + " to email: " + email);
-            } catch (MessagingException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            Context context = getApplicationContext();
-            CharSequence text = "Message sent!";
-            int duration = Toast.LENGTH_SHORT;
-
-            Toast toast = Toast.makeText(context, text, duration);
-            toast.show();
-        }
-
-    }*/
-
-    private class checkForMessage extends AsyncTask<String, String, Void> {
-
-        @Override
-        protected Void doInBackground(String... params) {
-            try {
-                listMessagesMatchingQuery(mService, "me", "burr");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        public List<Message> listMessagesMatchingQuery(Gmail service, String userId,
-                                                       String query) throws IOException {
-            ListMessagesResponse response = service.users().messages().list(userId).setQ(query).execute();
-
-            List<Message> messages = new ArrayList<Message>();
-            while (response.getMessages() != null) {
-                messages.addAll(response.getMessages());
-                if (response.getNextPageToken() != null) {
-                    String pageToken = response.getNextPageToken();
-                    response = service.users().messages().list(userId).setQ(query)
-                            .setPageToken(pageToken).execute();
-                } else {
-                    break;
-                }
-            }
-
-            for (Message message : messages) {
-                System.out.println(message.toPrettyString());
-                Log.i("hallo", message.toPrettyString());
-                String theMessage = getMessage(mService, "me", message.getId());
-                String keyword = "Ticket";
-                if (theMessage.contains("Ticket")) {
-                    Log.i("hallo", "Found the email");
-                    Log.i("Hallo", "Email snippet: " + theMessage);
-                }
-            }
-
-            return messages;
-        }
-
-        public String getMessage(Gmail service, String userId, String messageId)
-                throws IOException {
-            Message message = service.users().messages().get(userId, messageId).execute();
-
-            System.out.println("Message snippet: " + message.getSnippet());
-
-            return message.getSnippet();
-        }
     }
 
     private class loginTwitter extends AsyncTask<String, String, Void> {
@@ -821,8 +575,5 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
         }
     }
-
-
-
 
 }

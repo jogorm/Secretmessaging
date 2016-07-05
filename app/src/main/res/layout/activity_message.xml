@@ -42,6 +42,15 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="Send"
+        android:id="@+id/sendButton"
+        android:layout_below="@+id/twitterText"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="17dp" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:text="New Button"
         android:id="@+id/newActButton"
         android:layout_alignParentBottom="true"
@@ -50,27 +59,9 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Send Gmail"
-        android:id="@+id/sendGmail"
-        android:layout_above="@+id/newActButton"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="17dp" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:text="Check for email"
         android:id="@+id/checkForEmail"
-        android:layout_above="@+id/sendGmail"
+        android:layout_below="@+id/twitterText"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="20dp" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Send"
-        android:id="@+id/sendButton"
-        android:layout_above="@+id/checkForEmail"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="17dp" />
+        android:layout_marginTop="48dp" />
 </RelativeLayout>

@@ -17,11 +17,13 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import com.google.api.client.repackaged.org.apache.commons.codec.binary.Base64;
 import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.GmailScopes;
+import com.google.api.services.gmail.model.ListMessagesResponse;
 import com.google.api.services.gmail.model.Message;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import javax.mail.MessagingException;
@@ -54,7 +56,6 @@ public class MessageActivity extends AppCompatActivity {
     private Button actButton;
     private Button sendButton;
     private Button checkButton;
-    private Button sendButtonGmail;
     ProgressDialog mProgress;
     EditText messageEdit;
     EditText emailEdit;
@@ -62,13 +63,7 @@ public class MessageActivity extends AppCompatActivity {
 
     ArrayList<String> sendValues = new ArrayList<String>();
 
-
     private com.google.api.services.gmail.Gmail mService = null;
-    GoogleAccountCredential mCredential;
-    private static final String[] SCOPES = {GmailScopes.GMAIL_LABELS, GmailScopes.GMAIL_COMPOSE, GmailScopes.GMAIL_INSERT, GmailScopes.GMAIL_MODIFY, GmailScopes.GMAIL_READONLY, GmailScopes.MAIL_GOOGLE_COM};
-
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,8 +86,6 @@ public class MessageActivity extends AppCompatActivity {
 
         mSharedPreferences = getApplicationContext().getSharedPreferences("MyPref", 0);
 
-
-
         actButton = (Button)findViewById(R.id.newActButton);
         actButton.setText("Go to login");
         actButton.setOnClickListener(new View.OnClickListener() {
@@ -103,12 +96,9 @@ public class MessageActivity extends AppCompatActivity {
             }
         });
 
-
-
         messageEdit = (EditText)findViewById(R.id.messageText);
         emailEdit = (EditText)findViewById(R.id.emailText);
         twitterEdit = (EditText)findViewById(R.id.twitterText);
-
 
         sendButton = (Button)findViewById(R.id.sendButton);
         sendButton.setOnClickListener(
@@ -136,26 +126,12 @@ public class MessageActivity extends AppCompatActivity {
                     }
                 });
 
-        sendButtonGmail = (Button)findViewById(R.id.sendGmail);
-        sendButtonGmail.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                sendValues.clear();
-                sendValues.add(messageEdit.getText().toString());
-                sendValues.add(emailEdit.getText().toString());
-
-                new SendGmail().execute(sendValues);
-
-            }
-        });
-
         checkButton =(Button)findViewById(R.id.checkForEmail);
         checkButton.setOnClickListener(new View.OnClickListener(){
 
             @Override
             public void onClick(View v) {
-                //new checkForMessage().execute("Burr");
+                new checkForMessage().execute("Katter");
 
             }
         });
@@ -260,6 +236,57 @@ public class MessageActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
+        }
+    }
+
+    private class checkForMessage extends AsyncTask<String, String, Void> {
+
+        @Override
+        protected Void doInBackground(String... params) {
+            try {
+                String query = params[0];
+                listMessagesMatchingQuery(mService, "me", query);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        public List<Message> listMessagesMatchingQuery(Gmail service, String userId,
+                                                       String query) throws IOException {
+            ListMessagesResponse response = service.users().messages().list(userId).setQ(query).execute();
+
+            List<Message> messages = new ArrayList<Message>();
+            while (response.getMessages() != null) {
+                messages.addAll(response.getMessages());
+                if (response.getNextPageToken() != null) {
+                    String pageToken = response.getNextPageToken();
+                    response = service.users().messages().list(userId).setQ(query)
+                            .setPageToken(pageToken).execute();
+                } else {
+                    break;
+                }
+            }
+
+            for (Message message : messages) {
+                System.out.println(message.toPrettyString());
+                Log.i("hallo", message.toPrettyString());
+                String theMessage = getMessage(mService, "me", message.getId());
+                String keyword = "Ticket";
+                if (theMessage.contains("Ticket")) {
+                    Log.i("hallo", "Found the email");
+                    Log.i("Hallo", "Email snippet: " + theMessage);
+                }
+            }
+
+            return messages;
+        }
+
+        public String getMessage(Gmail service, String userId, String messageId)
+                throws IOException {
+            Message message = service.users().messages().get(userId, messageId).execute();
+
+            return message.getSnippet();
         }
     }
 }
