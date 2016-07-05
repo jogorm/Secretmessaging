@@ -26,29 +26,17 @@
         android:id="@+id/emailText"
         android:layout_below="@+id/messageText"
         android:layout_centerHorizontal="true"
+        android:gravity="center"
         android:hint="Recipient email" />
-
-    <Button
+    <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Send"
-        android:id="@+id/sendButton"
+        android:ems="10"
+        android:id="@+id/twitterText"
         android:layout_below="@+id/emailText"
-        android:layout_centerHorizontal="true" />
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Check for email"
-        android:id="@+id/checkForEmail"
-        android:layout_below="@+id/sendButton"
-        android:layout_centerHorizontal="true" />
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Send Gmail"
-        android:id="@+id/sendGmail"
-        android:layout_below="@+id/checkForEmail"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
+        android:hint="Recipient Twitter" />
 
     <Button
         android:layout_width="wrap_content"
@@ -57,4 +45,31 @@
         android:id="@+id/newActButton"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Send Gmail"
+        android:id="@+id/sendGmail"
+        android:layout_above="@+id/newActButton"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="17dp" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Check for email"
+        android:id="@+id/checkForEmail"
+        android:layout_above="@+id/sendGmail"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="20dp" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Send"
+        android:id="@+id/sendButton"
+        android:layout_above="@+id/checkForEmail"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="17dp" />
 </RelativeLayout>

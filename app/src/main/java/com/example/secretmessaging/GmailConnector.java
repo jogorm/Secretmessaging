@@ -41,8 +41,6 @@ public class GmailConnector extends Activity{
 
 
 
-
-
     public com.google.api.services.gmail.Gmail getService(){
 
         HttpTransport transport = AndroidHttp.newCompatibleTransport();

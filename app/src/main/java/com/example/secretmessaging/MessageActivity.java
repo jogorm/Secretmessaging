@@ -13,22 +13,15 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.repackaged.org.apache.commons.codec.binary.Base64;
-import com.google.api.client.util.ExponentialBackOff;
 import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.GmailScopes;
 import com.google.api.services.gmail.model.Message;
-import com.google.gson.Gson;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Properties;
 
 import javax.mail.MessagingException;
@@ -63,7 +56,7 @@ public class MessageActivity extends AppCompatActivity {
     private static RequestToken requestToken;
 
     private Button actButton;
-    private Button sendButtonTwitter;
+    private Button sendButton;
     private Button checkButton;
     private Button sendButtonGmail;
     ProgressDialog mProgress;
@@ -112,8 +105,8 @@ public class MessageActivity extends AppCompatActivity {
         messageEdit = (EditText)findViewById(R.id.messageText);
         emailEdit = (EditText)findViewById(R.id.emailText);
 
-        sendButtonTwitter = (Button)findViewById(R.id.sendButton);
-        sendButtonTwitter.setOnClickListener(
+        sendButton = (Button)findViewById(R.id.sendButton);
+        sendButton.setOnClickListener(
                 new View.OnClickListener() {
 
                     @Override
