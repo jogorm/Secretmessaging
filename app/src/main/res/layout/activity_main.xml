@@ -5,7 +5,8 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <Button
+    <com.google.android.gms.common.SignInButton
+
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="New Button"
@@ -15,6 +16,7 @@
         android:layout_centerHorizontal="true"
         />
 
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -23,8 +25,6 @@
         android:layout_gravity="center_horizontal"
         android:layout_below="@+id/button"
         android:layout_centerHorizontal="true" />
-
-
 
 
     <Button
@@ -60,5 +60,21 @@
         android:id="@+id/logoutGmail"
         android:layout_below="@+id/textView"
         android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/logOutFromTwitter"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="63dp"
+        android:id="@+id/googleStatus" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/googleStatus"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="17dp"
+        android:id="@+id/twitterStatus" />
 </RelativeLayout>
 

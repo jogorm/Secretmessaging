@@ -3,6 +3,7 @@ package com.example.secretmessaging;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.SignInButton;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException;
@@ -34,6 +35,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -53,6 +55,7 @@ import twitter4j.auth.RequestToken;
 import twitter4j.conf.Configuration;
 import twitter4j.conf.ConfigurationBuilder;
 
+import static com.example.secretmessaging.R.id.googleStatus;
 
 public class MainActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks  {
 
@@ -67,12 +70,16 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     private Button actButton;
 
 
+
     //Google Stuff
     GoogleAccountCredential mCredential;
     private TextView mOutputText;
-    private Button mCallApiButton;
+    private TextView gmailStatus;
+    private TextView twitterStatus;
+    private SignInButton mCallApiButton;
     ProgressDialog mProgress;
     private Button logoutGmail;
+
 
     static final int REQUEST_ACCOUNT_PICKER = 1000;
     static final int REQUEST_AUTHORIZATION = 1001;
@@ -97,6 +104,8 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     static final String PREF_KEY_OAUTH_TOKEN = "oauth_token";
     static final String PREF_KEY_OAUTH_SECRET = "oauth_token_secret";
     static final String PREF_KEY_TWITTER_LOGIN = "isTwitterLoggedIn";
+
+    static final String PREF_KEY_GMAIL_LOGIN = "isGmailLoggedIn";
 
     private static Context context;
 
@@ -125,6 +134,23 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         mSharedPreferences = getApplicationContext().getSharedPreferences("MyPref", 0);
         String accountName = mSharedPreferences.getString(PREF_ACCOUNT_NAME, null);
 
+        gmailStatus = (TextView)findViewById(googleStatus);
+        twitterStatus = (TextView)findViewById(R.id.twitterStatus);
+
+
+
+        if(mSharedPreferences.getBoolean(PREF_KEY_GMAIL_LOGIN, false)){
+
+            gmailStatus.setText("Gmail logged in");
+
+        }
+
+        if(mSharedPreferences.getBoolean(PREF_KEY_TWITTER_LOGIN,false)){
+            twitterStatus.setText("Twitter logged in");
+
+        }
+
+
         btnLogin = (Button) findViewById(R.id.btn_login);
         btnLogin.setOnClickListener(new View.OnClickListener() {
 
@@ -144,6 +170,8 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                 Toast.makeText(MainActivity.this, "You have logged out of Twitter", Toast.LENGTH_LONG).show();
             }
         });
+        
+        //// TODO: 05.07.2016 Should prioritise to find out how to log out from gmail as well.
 
         actButton = (Button) findViewById(R.id.newActButton);
         actButton.setText("Send messages");
@@ -164,8 +192,9 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         });
 
 
-        mCallApiButton = (Button) findViewById(R.id.button);
-        mCallApiButton.setText(BUTTON_TEXT);
+
+        mCallApiButton = (SignInButton) findViewById(R.id.button);
+        //mCallApiButton.setText(BUTTON_TEXT);
         mCallApiButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -211,31 +240,13 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                     e.putBoolean(PREF_KEY_TWITTER_LOGIN, true);
                     e.commit(); // save changes
 
-                    Log.e("Twitter OAuth Token", "> " + accessToken.getToken());
 
                     long userID = accessToken.getUserId();
                     User user = twitter.showUser(userID);
-                    User user2 = twitter.showUser("testjotestra");
-                    long abc = user2.getId();
-                    Log.i("hallo", "testjotestra's id is : " + String.valueOf(abc));
-
-                    List<DirectMessage> messages = twitter.getDirectMessages();
-                    for (DirectMessage message : messages) {
-                        if (message.getText().contains("Hei")) {
-                            Log.i("hallo messages", message.toString());
-                        }
-                    }
-                    twitter.directMessages().getDirectMessages();
-
-                    long testjo = 745178402408169472L;
-                    //twitter.directMessages().sendDirectMessage(testjo,"Heisann!");
-                    Log.i("hallo", "Sent message");
                     String username = user.getName();
 
                     Toast.makeText(MainActivity.this, "Welcome " + username, Toast.LENGTH_SHORT).show();
-
-                    // Displaying in xml ui
-                    //lblUserName.setText(Html.fromHtml("<b>Welcome " + username + "</b>"));
+                    twitterStatus.setText("Twitter logged in");
                 } catch (Exception e) {
                     // Check log for login errors
                     Log.e("Twitter Login Error", "> " + e.getMessage());
@@ -263,6 +274,9 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         e.remove(PREF_KEY_OAUTH_SECRET);
         e.remove(PREF_KEY_TWITTER_LOGIN);
         e.commit();
+        twitterStatus.setText("");
+
+
     }
 
 
@@ -329,6 +343,10 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                     mOutputText.setText(
                             "This app requires Google Play Services. Please install " + "Google Play Services on your device and relaunch this app.");
                 } else {
+                    settings = getPreferences(Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = settings.edit();
+                    editor.putBoolean(PREF_KEY_GMAIL_LOGIN, true);
+                    editor.commit();
                     getResultsFromApi();
                 }
                 break;
@@ -339,6 +357,8 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                         settings = getPreferences(Context.MODE_PRIVATE);
                         SharedPreferences.Editor editor = settings.edit();
                         editor.putString(PREF_ACCOUNT_NAME, accountName);
+                        editor.putBoolean(PREF_KEY_GMAIL_LOGIN, true);
+                        editor.commit();
 
                         SharedPreferences.Editor edi = mSharedPreferences.edit();
                         edi.putString(PREF_ACCOUNT_NAME, accountName);
@@ -351,6 +371,10 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                 break;
             case REQUEST_AUTHORIZATION:
                 if (resultCode == RESULT_OK) {
+                    settings = getPreferences(Context.MODE_PRIVATE);
+                    SharedPreferences.Editor edi =settings.edit();
+                    edi.putBoolean(PREF_KEY_GMAIL_LOGIN, true);
+                    edi.commit();
                     getResultsFromApi();
                 }
                 break;
@@ -480,7 +504,8 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         @Override
         protected void onPostExecute(List<Message> output) {
             mProgress.hide();
-                mOutputText.setText("Logged in to Gmail");
+            mOutputText.setText("Logged in to Gmail");
+            gmailStatus.setText("Gmail logged in");
         }
 
         @Override
@@ -541,8 +566,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                 AccessToken accessToken = new AccessToken(token, tokenSecret);
                 Twitter twitter = new TwitterFactory(builder.build()).getInstance(accessToken);
 
-                Log.i("hallo token", token);
-                Log.i("hallo tokenSecret", tokenSecret);
 
                 long userID = accessToken.getUserId();
                 User user = null;

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,10 +14,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.repackaged.org.apache.commons.codec.binary.Base64;
 import com.google.api.services.gmail.Gmail;
-import com.google.api.services.gmail.GmailScopes;
 import com.google.api.services.gmail.model.ListMessagesResponse;
 import com.google.api.services.gmail.model.Message;
 
@@ -44,10 +43,9 @@ public class MessageActivity extends AppCompatActivity {
     String twitter_callback;
     String url_twitter_auth;
     String twitter_oauth_verifier;
-    static String PREFERENCE_NAME = "twitter_oauth";
-    static final String PREF_KEY_OAUTH_TOKEN = "oauth_token";
-    static final String PREF_KEY_OAUTH_SECRET = "oauth_token_secret";
     static final String PREF_KEY_TWITTER_LOGIN = "isTwitterLoggedIn";
+
+
 
     private static Twitter twitter;
     private static SharedPreferences mSharedPreferences;
@@ -60,6 +58,7 @@ public class MessageActivity extends AppCompatActivity {
     EditText messageEdit;
     EditText emailEdit;
     EditText twitterEdit;
+    Handler handler;
 
     ArrayList<String> sendValues = new ArrayList<String>();
 
@@ -71,12 +70,20 @@ public class MessageActivity extends AppCompatActivity {
         setContentView(R.layout.activity_message);
 
         mProgress = new ProgressDialog(this);
+        mProgress.setMessage("Sending message");
 
         final GmailConnector gCon = new GmailConnector(this);
         mService = gCon.getService();
 
+        mSharedPreferences = getApplicationContext().getSharedPreferences("MyPref", 0);
+        if(mSharedPreferences.getBoolean(PREF_KEY_TWITTER_LOGIN,false)){
+
         TwitterConnector tCon = new TwitterConnector(this);
         twitter = tCon.getTwitter();
+        }
+        else{
+            Toast.makeText(MessageActivity.this, "You are not logged into twitter. The application will not work.", Toast.LENGTH_SHORT).show();
+        }
 
         twitter_consumer_key = getResources().getString(R.string.twitter_consumer_key);
         twitter_consumer_secret = getResources().getString(R.string.twitter_consumer_secret);
@@ -84,7 +91,7 @@ public class MessageActivity extends AppCompatActivity {
         url_twitter_auth = getResources().getString(R.string.url_twitter_auth);
         twitter_oauth_verifier = getResources().getString(R.string.twitter_oauth_verifier);
 
-        mSharedPreferences = getApplicationContext().getSharedPreferences("MyPref", 0);
+
 
         actButton = (Button)findViewById(R.id.newActButton);
         actButton.setText("Go to login");
@@ -118,6 +125,7 @@ public class MessageActivity extends AppCompatActivity {
                         sendValues.add(messageEdit.getText().toString());
                         sendValues.add(emailEdit.getText().toString());
                         sendValues.add(twitterEdit.getText().toString());
+
 
                         new SendGmail().execute(sendValues);
                         new SendTwitter().execute(sendValues);
@@ -172,12 +180,17 @@ public class MessageActivity extends AppCompatActivity {
             return email;
         }
 
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+        }
 
         @Override
         protected Void doInBackground(ArrayList<String>... params) {
             String message = params[0].get(0);
             String email = params[0].get(1);
-            mProgress.show();
+
             try {
                 sendMessage(mService, "me", createEmail(email, "me", "test", message));
                 Log.i("hallo", "Sent message: " + message + " to email: " + email);
@@ -196,7 +209,6 @@ public class MessageActivity extends AppCompatActivity {
             Context context = getApplicationContext();
             CharSequence text = "Message sent!";
             int duration = Toast.LENGTH_SHORT;
-            mProgress.hide();
 
             Toast toast = Toast.makeText(context, text, duration);
             toast.show();
@@ -204,15 +216,12 @@ public class MessageActivity extends AppCompatActivity {
 
     }
 
-    private class SendTwitter extends AsyncTask<ArrayList<String>, String, Void>{
+    private class SendTwitter extends AsyncTask<ArrayList<String>, String, String> {
 
         @Override
-        protected Void doInBackground(ArrayList<String>... params) {
+        protected String doInBackground(ArrayList<String>... params) {
             String twitt = params[0].get(2);
             String mess = params[0].get(0);
-
-            Log.i("inside sendtwitt mess:" , mess);
-            Log.i("inside sendtwitt twitt:" , twitt);
 
             User user;
             long userId = 0;
@@ -221,21 +230,41 @@ public class MessageActivity extends AppCompatActivity {
                 userId = user.getId();
             } catch (TwitterException e) {
                 e.printStackTrace();
-                Toast.makeText(MessageActivity.this, "Is that a real user? Try again.", Toast.LENGTH_SHORT).show();
+
+
+                //return e.getErrorCode();
+                return e.getErrorMessage();
             }
             try {
                 twitter.directMessages().sendDirectMessage(userId,mess);
             } catch (TwitterException e) {
                 e.printStackTrace();
+                //return e.getErrorCode();
+                return e.getErrorMessage();
             }
 
-            return null;
+            return "Twitter message sent";
         }
 
 
         @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
+        protected void onPostExecute(String code) {
+            super.onPostExecute(code);
+            Log.e("hallo", code.toString());
+            /*if(code == 400){
+                Toast.makeText(MessageActivity.this, "You have exceeded the number of available Twitter calls. Please wait a couple of minutes.", Toast.LENGTH_SHORT).show();
+
+            }
+            if(code== 401){
+                Toast.makeText(MessageActivity.this, "Is that a real user? Try typing the username again, without @", Toast.LENGTH_SHORT).show();
+            }
+            if(code ==  100){
+                Toast.makeText(MessageActivity.this, "Twitter message sent", Toast.LENGTH_SHORT).show();
+            }
+            if(code == 150){
+                Toast.makeText(MessageActivity.this, "You have to follow that user to send him/her a message", Toast.LENGTH_SHORT).show();
+            }*/
+            Toast.makeText(MessageActivity.this, code, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -289,4 +318,5 @@ public class MessageActivity extends AppCompatActivity {
             return message.getSnippet();
         }
     }
+
 }
