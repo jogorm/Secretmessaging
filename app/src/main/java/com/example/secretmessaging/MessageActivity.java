@@ -19,11 +19,15 @@ import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.model.ListMessagesResponse;
 import com.google.api.services.gmail.model.Message;
 
+import org.mitre.secretsharing.Part;
+import org.mitre.secretsharing.Secrets;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Random;
 
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -60,7 +64,8 @@ public class MessageActivity extends AppCompatActivity {
     EditText twitterEdit;
     Handler handler;
 
-    ArrayList<String> sendValues = new ArrayList<String>();
+    ArrayList<String> sendValuesGmail = new ArrayList<String>();
+    ArrayList<String> sendValuesTwitter = new ArrayList<String>();
 
     private com.google.api.services.gmail.Gmail mService = null;
 
@@ -121,14 +126,23 @@ public class MessageActivity extends AppCompatActivity {
                         Log.i("hallo", email);
                         Log.i("hallo", twitt);
 
-                        sendValues.clear();
-                        sendValues.add(messageEdit.getText().toString());
-                        sendValues.add(emailEdit.getText().toString());
-                        sendValues.add(twitterEdit.getText().toString());
+                        byte [] secret = mess.getBytes();
+                        Random rndm = new Random();
+                        Part[] parts = Secrets.split(secret, 2, 2, rndm);
+                        String gmailMess = String.valueOf(parts[0]);
+                        String twitterMess = String.valueOf(parts[1]);
+
+                        sendValuesGmail.clear();
+                        sendValuesGmail.add(gmailMess);
+                        sendValuesGmail.add(emailEdit.getText().toString());
+
+                        sendValuesTwitter.clear();
+                        sendValuesTwitter.add(twitterMess);
+                        sendValuesTwitter.add(twitt);
 
 
-                        new SendGmail().execute(sendValues);
-                        new SendTwitter().execute(sendValues);
+                        new SendGmail().execute(sendValuesGmail);
+                        new SendTwitter().execute(sendValuesTwitter);
 
 
                     }
@@ -148,8 +162,11 @@ public class MessageActivity extends AppCompatActivity {
 
         public void sendMessage(Gmail service, String userId, MimeMessage email)
                 throws MessagingException, IOException {
-            Message message = createMessageWithEmail(email);
-            message = service.users().messages().send(userId, message).execute();
+
+                Message message = createMessageWithEmail(email);
+                message = service.users().messages().send(userId, message).execute();
+
+
 
         }
 
@@ -194,9 +211,7 @@ public class MessageActivity extends AppCompatActivity {
             try {
                 sendMessage(mService, "me", createEmail(email, "me", "test", message));
                 Log.i("hallo", "Sent message: " + message + " to email: " + email);
-            } catch (MessagingException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
+            } catch (MessagingException | IOException e) {
                 e.printStackTrace();
             }
 
@@ -220,8 +235,8 @@ public class MessageActivity extends AppCompatActivity {
 
         @Override
         protected String doInBackground(ArrayList<String>... params) {
-            String twitt = params[0].get(2);
             String mess = params[0].get(0);
+            String twitt = params[0].get(1);
 
             User user;
             long userId = 0;
