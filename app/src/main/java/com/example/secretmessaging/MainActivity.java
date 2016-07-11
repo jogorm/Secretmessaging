@@ -202,6 +202,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             }
         });
 
+
         mOutputText = (TextView) findViewById(R.id.textView);
         mOutputText.setText("Click the \'" + BUTTON_TEXT + "\' button to test the API.");
         mProgress = new ProgressDialog(this);
@@ -251,6 +252,30 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         }
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        if (mSharedPreferences.getBoolean(PREF_KEY_GMAIL_LOGIN, false)) {
+            gmailStatus.setText("Gmail logged in");
+            Log.i("hallo", "gmail logged in");
+        }
+        else{
+            gmailStatus.setText("");
+            Log.i("hallo", "gmail not logged in");
+        }
+
+        if (mSharedPreferences.getBoolean(PREF_KEY_TWITTER_LOGIN, false)) {
+            twitterStatus.setText("Twitter logged in");
+            Log.i("hallo", "twitter logged in");
+        }
+        else{
+            twitterStatus.setText("");
+            Log.i("hallo", "twitter not logged in");
+        }
+
+    }
+
     public static Context getAppContext() {
         return MainActivity.context;
     }
@@ -271,7 +296,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         e.remove(PREF_KEY_TWITTER_LOGIN);
         e.commit();
         twitterStatus.setText("");
-
 
     }
 

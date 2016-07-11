@@ -112,9 +112,19 @@ public class MessageActivity extends AppCompatActivity {
         emailEdit = (EditText)findViewById(R.id.emailText);
         twitterEdit = (EditText)findViewById(R.id.twitterText);
 
+        checkButton =(Button)findViewById(R.id.checkForEmail);
+        checkButton.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View v) {
+                Log.i("Hallo", "CheckButton clicked");
+                new checkForGmail().execute("jgr2016");
+
+            }
+        });
+
         sendButton = (Button)findViewById(R.id.sendButton);
-        sendButton.setOnClickListener(
-                new View.OnClickListener() {
+        sendButton.setOnClickListener(new View.OnClickListener() {
 
                     @Override
                     public void onClick(View v) {
@@ -132,6 +142,18 @@ public class MessageActivity extends AppCompatActivity {
                         String gmailMess = String.valueOf(parts[0]);
                         String twitterMess = String.valueOf(parts[1]);
 
+                        String identifier = "jgr2016 ";
+
+                        StringBuilder sbTwitter = new StringBuilder();
+                        sbTwitter.append(identifier);
+                        sbTwitter.append(twitterMess);
+                        twitterMess = sbTwitter.toString();
+
+                        StringBuilder sbGmail = new StringBuilder();
+                        sbGmail.append(identifier );
+                        sbGmail.append(gmailMess);
+                        gmailMess = sbGmail.toString();
+
                         sendValuesGmail.clear();
                         sendValuesGmail.add(gmailMess);
                         sendValuesGmail.add(emailEdit.getText().toString());
@@ -148,15 +170,7 @@ public class MessageActivity extends AppCompatActivity {
                     }
                 });
 
-        checkButton =(Button)findViewById(R.id.checkForEmail);
-        checkButton.setOnClickListener(new View.OnClickListener(){
 
-            @Override
-            public void onClick(View v) {
-                new checkForMessage().execute("Katter");
-
-            }
-        });
     }
     private class SendGmail extends AsyncTask<ArrayList<String>, String, Void> {
 
@@ -283,7 +297,7 @@ public class MessageActivity extends AppCompatActivity {
         }
     }
 
-    private class checkForMessage extends AsyncTask<String, String, Void> {
+    private class checkForGmail extends AsyncTask<String, String, Void> {
 
         @Override
         protected Void doInBackground(String... params) {
@@ -296,8 +310,7 @@ public class MessageActivity extends AppCompatActivity {
             return null;
         }
 
-        public List<Message> listMessagesMatchingQuery(Gmail service, String userId,
-                                                       String query) throws IOException {
+        public List<Message> listMessagesMatchingQuery(Gmail service, String userId, String query) throws IOException {
             ListMessagesResponse response = service.users().messages().list(userId).setQ(query).execute();
 
             List<Message> messages = new ArrayList<Message>();
@@ -305,8 +318,7 @@ public class MessageActivity extends AppCompatActivity {
                 messages.addAll(response.getMessages());
                 if (response.getNextPageToken() != null) {
                     String pageToken = response.getNextPageToken();
-                    response = service.users().messages().list(userId).setQ(query)
-                            .setPageToken(pageToken).execute();
+                    response = service.users().messages().list(userId).setQ(query).setPageToken(pageToken).execute();
                 } else {
                     break;
                 }
@@ -316,8 +328,8 @@ public class MessageActivity extends AppCompatActivity {
                 System.out.println(message.toPrettyString());
                 Log.i("hallo", message.toPrettyString());
                 String theMessage = getMessage(mService, "me", message.getId());
-                String keyword = "Ticket";
-                if (theMessage.contains("Ticket")) {
+                String keyword = "jgr2016 ";
+                if (theMessage.contains(keyword)) {
                     Log.i("hallo", "Found the email");
                     Log.i("Hallo", "Email snippet: " + theMessage);
                 }
