@@ -34,6 +34,7 @@ import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import twitter4j.DirectMessage;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.User;
@@ -119,6 +120,20 @@ public class MessageActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Log.i("Hallo", "CheckButton clicked");
                 new checkForGmail().execute("jgr2016");
+
+
+                List<DirectMessage> messages = null;
+                try {
+                    messages = twitter.getDirectMessages();
+                } catch (TwitterException e) {
+                    e.printStackTrace();
+                }
+                for (DirectMessage message : messages){
+                    if(message.getText().contains("jgr2016 ")) {
+                        Log.i("hallo messages", message.getText().toString());
+                    }
+                }
+
 
             }
         });
@@ -325,8 +340,6 @@ public class MessageActivity extends AppCompatActivity {
             }
 
             for (Message message : messages) {
-                System.out.println(message.toPrettyString());
-                Log.i("hallo", message.toPrettyString());
                 String theMessage = getMessage(mService, "me", message.getId());
                 String keyword = "jgr2016 ";
                 if (theMessage.contains(keyword)) {
