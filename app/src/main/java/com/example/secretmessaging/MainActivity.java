@@ -210,9 +210,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
 
         // Initialize credentials and service object.
-        mCredential = GoogleAccountCredential.usingOAuth2(
-                getApplicationContext(), Arrays.asList(SCOPES))
-                .setBackOff(new ExponentialBackOff());
+        mCredential = GoogleAccountCredential.usingOAuth2(getApplicationContext(), Arrays.asList(SCOPES)).setBackOff(new ExponentialBackOff());
 
 
         if (!isTwitterLoggedInAlready()) {
@@ -256,8 +254,9 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     protected void onStart() {
         super.onStart();
 
-        if (mSharedPreferences.getBoolean(PREF_KEY_GMAIL_LOGIN, false)) {
+        if (mSharedPreferences.getBoolean(PREF_KEY_GMAIL_LOGIN, true)) {
             gmailStatus.setText("Gmail logged in");
+            mOutputText.setText("Logged in to Gmail");
             Log.i("hallo", "gmail logged in");
         }
         else{

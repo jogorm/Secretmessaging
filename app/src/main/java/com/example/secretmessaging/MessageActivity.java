@@ -64,6 +64,7 @@ public class MessageActivity extends AppCompatActivity {
     EditText emailEdit;
     EditText twitterEdit;
     Handler handler;
+    String identifier = "jgr2016 ";
 
     ArrayList<String> sendValuesGmail = new ArrayList<String>();
     ArrayList<String> sendValuesTwitter = new ArrayList<String>();
@@ -119,20 +120,8 @@ public class MessageActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Log.i("Hallo", "CheckButton clicked");
-                new checkForGmail().execute("jgr2016");
-
-
-                List<DirectMessage> messages = null;
-                try {
-                    messages = twitter.getDirectMessages();
-                } catch (TwitterException e) {
-                    e.printStackTrace();
-                }
-                for (DirectMessage message : messages){
-                    if(message.getText().contains("jgr2016 ")) {
-                        Log.i("hallo messages", message.getText().toString());
-                    }
-                }
+                new checkForGmail().execute(identifier);
+                new checkForTwitter().execute(identifier);
 
 
             }
@@ -147,9 +136,8 @@ public class MessageActivity extends AppCompatActivity {
                         String mess = messageEdit.getText().toString();
                         String twitt = twitterEdit.getText().toString();
 
-                        Log.i("hallo", mess);
-                        Log.i("hallo", email);
-                        Log.i("hallo", twitt);
+                        //removing spaces from twitter username
+                        String fixedTwitt = twitt.replace(" ", "");
 
                         byte [] secret = mess.getBytes();
                         Random rndm = new Random();
@@ -157,7 +145,7 @@ public class MessageActivity extends AppCompatActivity {
                         String gmailMess = String.valueOf(parts[0]);
                         String twitterMess = String.valueOf(parts[1]);
 
-                        String identifier = "jgr2016 ";
+
 
                         StringBuilder sbTwitter = new StringBuilder();
                         sbTwitter.append(identifier);
@@ -175,12 +163,14 @@ public class MessageActivity extends AppCompatActivity {
 
                         sendValuesTwitter.clear();
                         sendValuesTwitter.add(twitterMess);
-                        sendValuesTwitter.add(twitt);
+                        sendValuesTwitter.add(fixedTwitt);
 
 
                         new SendGmail().execute(sendValuesGmail);
                         new SendTwitter().execute(sendValuesTwitter);
 
+                        // TODO: 11.07.2016 Must investigate what happens if there are more than one message that contains the identifier.  
+                        // TODO: 11.07.2016 and should move checking for twitter mess to asyncthread 
 
                     }
                 });
@@ -274,8 +264,6 @@ public class MessageActivity extends AppCompatActivity {
                 userId = user.getId();
             } catch (TwitterException e) {
                 e.printStackTrace();
-
-
                 //return e.getErrorCode();
                 return e.getErrorMessage();
             }
@@ -295,19 +283,7 @@ public class MessageActivity extends AppCompatActivity {
         protected void onPostExecute(String code) {
             super.onPostExecute(code);
             Log.e("hallo", code.toString());
-            /*if(code == 400){
-                Toast.makeText(MessageActivity.this, "You have exceeded the number of available Twitter calls. Please wait a couple of minutes.", Toast.LENGTH_SHORT).show();
 
-            }
-            if(code== 401){
-                Toast.makeText(MessageActivity.this, "Is that a real user? Try typing the username again, without @", Toast.LENGTH_SHORT).show();
-            }
-            if(code ==  100){
-                Toast.makeText(MessageActivity.this, "Twitter message sent", Toast.LENGTH_SHORT).show();
-            }
-            if(code == 150){
-                Toast.makeText(MessageActivity.this, "You have to follow that user to send him/her a message", Toast.LENGTH_SHORT).show();
-            }*/
             Toast.makeText(MessageActivity.this, code, Toast.LENGTH_SHORT).show();
         }
     }
@@ -345,6 +321,7 @@ public class MessageActivity extends AppCompatActivity {
                 if (theMessage.contains(keyword)) {
                     Log.i("hallo", "Found the email");
                     Log.i("Hallo", "Email snippet: " + theMessage);
+                    break;
                 }
             }
 
@@ -356,6 +333,30 @@ public class MessageActivity extends AppCompatActivity {
             Message message = service.users().messages().get(userId, messageId).execute();
 
             return message.getSnippet();
+        }
+    }
+
+    private class checkForTwitter extends AsyncTask<String, String, Void>{
+
+        @Override
+        protected Void doInBackground(String... params) {
+            String query = params[0];
+
+            List<DirectMessage> messages = null;
+            try {
+                messages = twitter.getDirectMessages();
+            } catch (TwitterException e) {
+                e.printStackTrace();
+            }
+            for (DirectMessage message : messages){
+                if(message.getText().contains(query)) {
+                    Log.i("hallo messages twitter", message.getText().toString());
+                    break;
+                }
+            }
+
+
+            return null;
         }
     }
 
