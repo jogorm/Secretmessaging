@@ -139,6 +139,7 @@ public class MessageActivity extends AppCompatActivity {
                         //removing spaces from twitter username
                         String fixedTwitt = twitt.replace(" ", "");
 
+                        //Secret sharing elements
                         byte [] secret = mess.getBytes();
                         Random rndm = new Random();
                         Part[] parts = Secrets.split(secret, 2, 2, rndm);
@@ -146,7 +147,7 @@ public class MessageActivity extends AppCompatActivity {
                         String twitterMess = String.valueOf(parts[1]);
 
 
-
+                        //Building the string by adding the identifier to start of string.
                         StringBuilder sbTwitter = new StringBuilder();
                         sbTwitter.append(identifier);
                         sbTwitter.append(twitterMess);
@@ -169,8 +170,6 @@ public class MessageActivity extends AppCompatActivity {
                         new SendGmail().execute(sendValuesGmail);
                         new SendTwitter().execute(sendValuesTwitter);
 
-                        // TODO: 11.07.2016 Must investigate what happens if there are more than one message that contains the identifier.  
-                        // TODO: 11.07.2016 and should move checking for twitter mess to asyncthread 
 
                     }
                 });
@@ -288,22 +287,26 @@ public class MessageActivity extends AppCompatActivity {
         }
     }
 
-    private class checkForGmail extends AsyncTask<String, String, Void> {
+    private class checkForGmail extends AsyncTask<String, String, String> {
 
         @Override
-        protected Void doInBackground(String... params) {
+        protected String doInBackground(String... params) {
+            String gmailMessage = "empty";
             try {
                 String query = params[0];
-                listMessagesMatchingQuery(mService, "me", query);
+                gmailMessage = listMessagesMatchingQuery(mService, "me", query);
+//                listMessagesMatchingQuery(mService, "me", query);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            return null;
+            return gmailMessage;
         }
 
-        public List<Message> listMessagesMatchingQuery(Gmail service, String userId, String query) throws IOException {
+        public String listMessagesMatchingQuery(Gmail service, String userId, String query) throws IOException {
             ListMessagesResponse response = service.users().messages().list(userId).setQ(query).execute();
 
+            String gmailMessage ="";
+            String fixedGmailMessage = "empty";
             List<Message> messages = new ArrayList<Message>();
             while (response.getMessages() != null) {
                 messages.addAll(response.getMessages());
@@ -317,15 +320,16 @@ public class MessageActivity extends AppCompatActivity {
 
             for (Message message : messages) {
                 String theMessage = getMessage(mService, "me", message.getId());
-                String keyword = "jgr2016 ";
-                if (theMessage.contains(keyword)) {
-                    Log.i("hallo", "Found the email");
+                if (theMessage.contains(identifier)) {
                     Log.i("Hallo", "Email snippet: " + theMessage);
+                    gmailMessage = theMessage;
                     break;
                 }
             }
 
-            return messages;
+            fixedGmailMessage = gmailMessage.replace(identifier, "");
+
+            return fixedGmailMessage;
         }
 
         public String getMessage(Gmail service, String userId, String messageId)
@@ -334,14 +338,23 @@ public class MessageActivity extends AppCompatActivity {
 
             return message.getSnippet();
         }
-    }
-
-    private class checkForTwitter extends AsyncTask<String, String, Void>{
 
         @Override
-        protected Void doInBackground(String... params) {
-            String query = params[0];
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
 
+            Log.i("Fixed gmail message: " , s);
+
+        }
+    }
+
+    private class checkForTwitter extends AsyncTask<String, String, String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+            String query = params[0];
+            String twitterMessage="";
+            String fixedTwitterMessage = "empty";
             List<DirectMessage> messages = null;
             try {
                 messages = twitter.getDirectMessages();
@@ -351,12 +364,22 @@ public class MessageActivity extends AppCompatActivity {
             for (DirectMessage message : messages){
                 if(message.getText().contains(query)) {
                     Log.i("hallo messages twitter", message.getText().toString());
+                    twitterMessage = message.getText().toString();
                     break;
                 }
             }
 
+            fixedTwitterMessage = twitterMessage.replace(identifier, "");
 
-            return null;
+
+            return fixedTwitterMessage;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+
+            Log.i("Fixed twitter message: " , s);
         }
     }
 
