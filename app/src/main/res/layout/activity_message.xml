@@ -64,4 +64,13 @@
         android:layout_below="@+id/twitterText"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="48dp" />
+
+    <TextView
+        android:text=""
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/checkForEmail"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="49dp"
+        android:id="@+id/messageReply" />
 </RelativeLayout>
