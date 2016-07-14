@@ -47,6 +47,7 @@ public class GmailConnector extends Activity{
         JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
 
         mService = new com.google.api.services.gmail.Gmail.Builder(transport, jsonFactory, getCredentials()).setApplicationName("Gmail API Android Quickstart").build();
+
         return mService;
     }
 

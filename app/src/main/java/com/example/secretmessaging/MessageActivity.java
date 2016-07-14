@@ -23,9 +23,11 @@ import com.google.api.services.gmail.model.Message;
 import org.mitre.secretsharing.Part;
 import org.mitre.secretsharing.Secrets;
 import org.mitre.secretsharing.codec.PartFormats;
+import org.mitre.secretsharing.util.InputValidationException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -167,7 +169,7 @@ public class MessageActivity extends AppCompatActivity {
 
                         sendValuesGmail.clear();
                         sendValuesGmail.add(gmailMess);
-                        sendValuesGmail.add(emailEdit.getText().toString());
+                        sendValuesGmail.add(email);
 
                         sendValuesTwitter.clear();
                         sendValuesTwitter.add(twitterMess);
@@ -301,9 +303,7 @@ public class MessageActivity extends AppCompatActivity {
             String gmailMessage = "empty";
             String query = params[0];
             try {
-
                 gmailMessage = listMessagesMatchingQuery(mService, "me", query);
-//                listMessagesMatchingQuery(mService, "me", query);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -318,20 +318,17 @@ public class MessageActivity extends AppCompatActivity {
             }
             for (DirectMessage message : messages){
                 if(message.getText().contains(query)) {
-                    Log.i("hallo messages twitter", message.getText().toString());
                     twitterMessage = message.getText().toString();
                     break;
                 }
             }
 
             fixedTwitterMessage = twitterMessage.replace(identifier, "");
+            Log.i("Final twitter message: " , fixedTwitterMessage);
 
             HashMap message = new HashMap();
             message.put("gmail", gmailMessage);
             message.put("twitter", fixedTwitterMessage);
-            /*ArrayList message = new ArrayList();
-            message.add(gmailMessage);
-            message.add(fixedTwitterMessage);*/
             return message;
         }
 
@@ -354,13 +351,25 @@ public class MessageActivity extends AppCompatActivity {
             for (Message message : messages) {
                 String theMessage = getMessage(mService, "me", message.getId());
                 if (theMessage.contains(identifier)) {
-                    Log.i("Hallo", "Email snippet found ");
                     gmailMessage = theMessage;
                     break;
                 }
             }
-
             fixedGmailMessage = gmailMessage.replace(identifier, "");
+
+            if(fixedGmailMessage.contains("@")){
+                fixedGmailMessage = fixedGmailMessage.substring(fixedGmailMessage.indexOf(" ") + 1);
+                System.out.println("Gmail Message contains @");
+            }
+
+
+            if(fixedGmailMessage.length() > 60) {
+                System.out.println("Fixed gmail message BEFORE second substring thing: " + fixedGmailMessage);
+                fixedGmailMessage = fixedGmailMessage.substring(0, fixedGmailMessage.indexOf(' '));
+                System.out.println("Fixed gmail message after second substring thing: " + fixedGmailMessage);
+            }
+
+            Log.i(" Final Gmail Message", fixedGmailMessage);
 
             return fixedGmailMessage;
         }
@@ -380,24 +389,24 @@ public class MessageActivity extends AppCompatActivity {
             String twitter = String.valueOf(s.get("twitter"));
             String gmail = String.valueOf(s.get("gmail"));
 
-            Log.i("Fixed gmail message: " , gmail);
-            Log.i("Fixed twitter message: ", twitter);
-
-
             List<Part> parts = new ArrayList<Part>();
             parts.add(PartFormats.parse(gmail));
             parts.add(PartFormats.parse(twitter));
 
             Part[] p = parts.toArray(new Part[0]);
-            result = p[0].join(Arrays.copyOfRange(p, 1, p.length));
+            try {
+                result = p[0].join(Arrays.copyOfRange(p, 1, p.length));
+                String stringResult = new String(result);
+                Log.i("RESULTAT", stringResult);
 
-            String stringResult = new String(result);
-            Log.i("RESULTAT", stringResult);
+                System.out.println(result);
+                messageReply.setText(stringResult);
+            }
+            catch (InputValidationException e){
+                Toast.makeText(MessageActivity.this, "Something went wrong here. Try sending a message again", Toast.LENGTH_SHORT).show();
+            }
 
-            System.out.println(result);
-            Log.i("hallo", "inne i try catch");
 
-            messageReply.setText(stringResult);
 
             // TODO: 12.07.2016 Make a progress bar or something while this is happening
 

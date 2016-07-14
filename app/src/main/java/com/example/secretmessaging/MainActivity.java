@@ -64,7 +64,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     private static Twitter twitter;
     private static SharedPreferences mSharedPreferences;
     private static RequestToken requestToken;
-
     private static SharedPreferences settings;
 
     private Button btnLogin;
@@ -149,7 +148,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
         }
 
-
         btnLogin = (Button) findViewById(R.id.btn_login);
         btnLogin.setOnClickListener(new View.OnClickListener() {
 
@@ -213,6 +211,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         mCredential = GoogleAccountCredential.usingOAuth2(getApplicationContext(), Arrays.asList(SCOPES)).setBackOff(new ExponentialBackOff());
 
 
+
         if (!isTwitterLoggedInAlready()) {
             Uri uri = getIntent().getData();
             if (uri != null && uri.toString().startsWith(twitter_callback)) {
@@ -258,6 +257,8 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             gmailStatus.setText("Gmail logged in");
             mOutputText.setText("Logged in to Gmail");
             Log.i("hallo", "gmail logged in");
+
+
         }
         else{
             gmailStatus.setText("");
@@ -273,11 +274,15 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             Log.i("hallo", "twitter not logged in");
         }
 
+        String reply = String.valueOf(mSharedPreferences.getBoolean(PREF_KEY_GMAIL_LOGIN, false));
+        Log.i("reply:" , reply);
+
     }
 
     public static Context getAppContext() {
         return MainActivity.context;
     }
+
 
 
     private boolean isTwitterLoggedInAlready() {
@@ -315,6 +320,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             mOutputText.setText("No network connection available.");
         } else {
             new MakeRequestTask(mCredential).execute();
+
 
         }
     }
@@ -611,6 +617,10 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
 
         }
+    }
+
+    private void signOut(){
+
     }
 
 }
