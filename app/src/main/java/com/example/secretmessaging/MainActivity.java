@@ -1,5 +1,6 @@
 package com.example.secretmessaging;
 
+import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.SignInButton;
@@ -8,7 +9,12 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 
+import com.google.api.client.http.GenericUrl;
+import com.google.api.client.http.HttpRequest;
+import com.google.api.client.http.HttpRequestFactory;
+import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.HttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.ExponentialBackOff;
@@ -37,6 +43,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -56,11 +63,6 @@ import static com.example.secretmessaging.R.id.googleStatus;
 
 public class MainActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
 
-    // Note: Your consumer key and secret should be obfuscated in your source code before shipping.
-    private static final String TWITTER_KEY = "SpHeceJw3jmFVskY50nnUfBC4";
-    private static final String TWITTER_SECRET = "prOOd00ugc6t1Uegw77zAZKZY1CHGuzwuPPYt0wRH9srL8YfGj";
-
-
     private static Twitter twitter;
     private static SharedPreferences mSharedPreferences;
     private static RequestToken requestToken;
@@ -70,7 +72,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     private Button logOut;
     private Button actButton;
 
-
     //Google Stuff
     GoogleAccountCredential mCredential;
     private TextView mOutputText;
@@ -79,7 +80,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     private SignInButton mCallApiButton;
     ProgressDialog mProgress;
     private Button logoutGmail;
-
 
     static final int REQUEST_ACCOUNT_PICKER = 1000;
     static final int REQUEST_AUTHORIZATION = 1001;
@@ -97,15 +97,11 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     private String twitter_callback;
     private String url_twitter_auth;
     private String twitter_oauth_verifier;
-
-
-    // Preference Constants
-    static String PREFERENCE_NAME = "twitter_oauth";
     static final String PREF_KEY_OAUTH_TOKEN = "oauth_token";
     static final String PREF_KEY_OAUTH_SECRET = "oauth_token_secret";
     static final String PREF_KEY_TWITTER_LOGIN = "isTwitterLoggedIn";
-
     static final String PREF_KEY_GMAIL_LOGIN = "isGmailLoggedIn";
+
 
     private static Context context;
 
@@ -144,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         }
 
         if (mSharedPreferences.getBoolean(PREF_KEY_TWITTER_LOGIN, false)) {
-            twitterStatus.setText("Twitter logged in");
+            twitterStatus.setText("Logged in to Gmail");
 
         }
 
@@ -168,10 +164,11 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             }
         });
 
-        //// TODO: 05.07.2016 Should prioritise to find out how to log out from gmail as well.
 
         actButton = (Button) findViewById(R.id.newActButton);
-        actButton.setText("Send messages");
+        if (actButton != null) {
+            actButton.setText("Messages");
+        }
         actButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -180,11 +177,14 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             }
         });
 
+
         logoutGmail = (Button) findViewById(R.id.logoutGmail);
         logoutGmail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(MainActivity.this, "This function has not been implemented yet.", Toast.LENGTH_LONG).show();
+
+
             }
         });
 
@@ -202,14 +202,15 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
 
         mOutputText = (TextView) findViewById(R.id.textView);
-        mOutputText.setText("Click the \'" + BUTTON_TEXT + "\' button to test the API.");
+        if (mOutputText != null) {
+            mOutputText.setText("Click the \'" + BUTTON_TEXT + "\' button to test the API.");
+        }
         mProgress = new ProgressDialog(this);
         mProgress.setMessage("Calling Gmail API ...");
 
 
         // Initialize credentials and service object.
         mCredential = GoogleAccountCredential.usingOAuth2(getApplicationContext(), Arrays.asList(SCOPES)).setBackOff(new ExponentialBackOff());
-
 
 
         if (!isTwitterLoggedInAlready()) {
@@ -240,7 +241,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                     String username = user.getName();
 
                     Toast.makeText(MainActivity.this, "Welcome " + username, Toast.LENGTH_SHORT).show();
-                    twitterStatus.setText("Twitter logged in");
+                    twitterStatus.setText("Logged in to Twitter");
                 } catch (Exception e) {
                     // Check log for login errors
                     Log.e("Twitter Login Error", "> " + e.getMessage());
@@ -259,23 +260,21 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             Log.i("hallo", "gmail logged in");
 
 
-        }
-        else{
+        } else {
             gmailStatus.setText("");
             Log.i("hallo", "gmail not logged in");
         }
 
         if (mSharedPreferences.getBoolean(PREF_KEY_TWITTER_LOGIN, false)) {
-            twitterStatus.setText("Twitter logged in");
-            Log.i("hallo", "twitter logged in");
-        }
-        else{
+            twitterStatus.setText("Logged in to Twitter");
+            Log.i("hallo", "Logged in to Twitter");
+        } else {
             twitterStatus.setText("");
             Log.i("hallo", "twitter not logged in");
         }
 
         String reply = String.valueOf(mSharedPreferences.getBoolean(PREF_KEY_GMAIL_LOGIN, false));
-        Log.i("reply:" , reply);
+        Log.i("reply:", reply);
 
     }
 
@@ -284,14 +283,12 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     }
 
 
-
     private boolean isTwitterLoggedInAlready() {
         // return twitter login status from Shared Preferences
         return mSharedPreferences.getBoolean(PREF_KEY_TWITTER_LOGIN, false);
     }
 
 
-    //// TODO: 05.07.2016 move this method to twitterconnector. Find out where it is used, change logic there to point to twitterconnector.
     private void logoutFromTwitter() {
         // Clear the shared preferences
         SharedPreferences.Editor e = mSharedPreferences.edit();
@@ -343,6 +340,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
             if (accountName != null) {
                 mCredential.setSelectedAccountName(accountName);
+
                 getResultsFromApi();
             } else {
                 // Start a dialog from which the user can choose an account
@@ -356,7 +354,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                     Manifest.permission.GET_ACCOUNTS);
         }
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -511,7 +508,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             mService = new com.google.api.services.gmail.Gmail.Builder(transport, jsonFactory, credential).setApplicationName("Gmail API Android Quickstart").build();
         }
 
-
         @Override
         protected List<Message> doInBackground(ArrayList<String>... params) {
             return null;
@@ -535,9 +531,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             mProgress.hide();
             if (mLastError != null) {
                 if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
-                    showGooglePlayServicesAvailabilityErrorDialog(
-                            ((GooglePlayServicesAvailabilityIOException) mLastError)
-                                    .getConnectionStatusCode());
+                    showGooglePlayServicesAvailabilityErrorDialog(((GooglePlayServicesAvailabilityIOException) mLastError).getConnectionStatusCode());
                 } else if (mLastError instanceof UserRecoverableAuthIOException) {
                     startActivityForResult(((UserRecoverableAuthIOException) mLastError).getIntent(), MainActivity.REQUEST_AUTHORIZATION);
                 } else {
@@ -617,10 +611,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
 
         }
-    }
-
-    private void signOut(){
-
     }
 
 }

@@ -10,16 +10,20 @@
 
 
     <EditText
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:id="@+id/messageText"
         android:layout_below="@+id/textView"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp"
-        android:hint="Message" />
+        android:layout_marginTop="0dp"
+        android:background="@drawable/back"
+        android:layout_marginBottom="3dp"
+        android:padding="20dp"
+        android:hint="Message"
+        android:gravity="center"/>
 
     <EditText
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:inputType="textEmailAddress"
         android:ems="10"
@@ -27,16 +31,22 @@
         android:layout_below="@+id/messageText"
         android:layout_centerHorizontal="true"
         android:gravity="center"
-        android:hint="Recipient email" />
+        android:background="@drawable/back"
+        android:layout_marginBottom="3dp"
+        android:padding="5dp"
+        android:hint="Recipient Gmail" />
 
     <EditText
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:ems="10"
         android:id="@+id/twitterText"
         android:layout_below="@+id/emailText"
         android:layout_centerHorizontal="true"
         android:gravity="center"
+        android:background="@drawable/back"
+        android:padding="5dp"
+        android:layout_marginBottom="10dp"
         android:hint="Recipient Twitter" />
 
     <Button
@@ -46,7 +56,76 @@
         android:id="@+id/sendButton"
         android:layout_below="@+id/twitterText"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="17dp" />
+        android:layout_marginBottom="10dp" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Check for message"
+        android:id="@+id/checkForEmail"
+        android:layout_below="@+id/divider"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"/>
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@android:color/darker_gray"
+        android:layout_below="@+id/sendButton" />
+
+    <TextView
+        android:text=""
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/checkForEmail"
+        android:layout_centerHorizontal="true"
+        android:padding="30dp"
+        android:background="@drawable/back"
+        android:id="@+id/messageReply" />
+    <TextView
+        android:text=""
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/messageReply"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="9dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginTop="8dp"
+        android:id="@+id/dateView" />
+
+    <TextView
+        android:text="From"
+        android:textStyle="bold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/dateView"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/fromField" />
+
+
+
+    <TextView
+        android:text=""
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/fromField"
+        android:layout_marginTop="11dp"
+        android:id="@+id/gmailAddress" />
+
+    <TextView
+        android:text=""
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/gmailAddress"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="8dp"
+        android:id="@+id/twitterAddress" />
+
 
     <Button
         android:layout_width="wrap_content"
@@ -54,23 +133,7 @@
         android:text="New Button"
         android:id="@+id/newActButton"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"  />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Check for email"
-        android:id="@+id/checkForEmail"
-        android:layout_below="@+id/twitterText"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="48dp" />
 
-    <TextView
-        android:text=""
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/checkForEmail"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="49dp"
-        android:id="@+id/messageReply" />
 </RelativeLayout>
