@@ -135,5 +135,15 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"  />
 
+    <TextView
+        android:text="29"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/twitterText"
+        android:layout_toLeftOf="@+id/dateView"
+        android:layout_toStartOf="@+id/dateView"
+        android:id="@+id/textLength"
+        />
+
 
 </RelativeLayout>

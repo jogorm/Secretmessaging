@@ -7,6 +7,8 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -74,6 +76,9 @@ public class MessageActivity extends AppCompatActivity {
     EditText emailEdit;
     EditText twitterEdit;
 
+    private TextView mTextView;
+
+
     String identifier = "jgr2016 ";
     private TextView messageReply;
 
@@ -96,20 +101,28 @@ public class MessageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_message);
 
+        //initialising progress checkers
         mProgressCheck = new ProgressDialog(MessageActivity.this);
         mProgressCheck.setMessage("Checking for message");
-
         mProgressSend = new ProgressDialog(MessageActivity.this);
         mProgressSend.setMessage("Sending message");
 
+        //initialising input fields and textviews
         twitterSenderText = (TextView)findViewById(R.id.twitterAddress);
         gmailSenderText = (TextView)findViewById(R.id.gmailAddress);
         dateSentText = (TextView)findViewById(R.id.dateView);
+        messageReply = (TextView)findViewById(R.id.messageReply);
+        mTextView = (TextView)findViewById(R.id.textLength);
+        messageEdit = (EditText)findViewById(R.id.messageText);
+        emailEdit = (EditText)findViewById(R.id.emailText);
+        twitterEdit = (EditText)findViewById(R.id.twitterText);
 
 
+        //getting mService object from GmailConnectorclass
         final GmailConnector gCon = new GmailConnector(this);
         mService = gCon.getService();
 
+        //Checking whether user is logged in to twitter
         mSharedPreferences = getApplicationContext().getSharedPreferences("MyPref", 0);
         if(mSharedPreferences.getBoolean(PREF_KEY_TWITTER_LOGIN,false)){
 
@@ -120,15 +133,15 @@ public class MessageActivity extends AppCompatActivity {
             Toast.makeText(MessageActivity.this, "You are not logged into twitter. The application will not work.", Toast.LENGTH_SHORT).show();
         }
 
+        //initialising twitter key and twitter secret
         twitter_consumer_key = getResources().getString(R.string.twitter_consumer_key);
         twitter_consumer_secret = getResources().getString(R.string.twitter_consumer_secret);
         twitter_callback = getResources().getString(R.string.twitter_callback);
         url_twitter_auth = getResources().getString(R.string.url_twitter_auth);
         twitter_oauth_verifier = getResources().getString(R.string.twitter_oauth_verifier);
-        messageReply = (TextView)findViewById(R.id.messageReply);
 
 
-
+        //initialising login button and starting new activity when clicking it
         actButton = (Button)findViewById(R.id.newActButton);
         if (actButton != null) {
             actButton.setText("Login");
@@ -141,16 +154,15 @@ public class MessageActivity extends AppCompatActivity {
             }
         });
 
-        messageEdit = (EditText)findViewById(R.id.messageText);
-        emailEdit = (EditText)findViewById(R.id.emailText);
-        twitterEdit = (EditText)findViewById(R.id.twitterText);
 
+        //initialising the check messages button. start async task when clicked
         checkButton =(Button)findViewById(R.id.checkForEmail);
         checkButton.setOnClickListener(new View.OnClickListener(){
 
             @Override
             public void onClick(View v) {
 
+                //emptying the message field before finding new message
                 messageReply.setText("");
                 new checkForMessage().execute(identifier);
 
@@ -158,6 +170,10 @@ public class MessageActivity extends AppCompatActivity {
             }
         });
 
+        //adding textwatcher to the message input field
+        messageEdit.addTextChangedListener(mTextEditorWatcher);
+
+        //initialising the send button
         sendButton = (Button)findViewById(R.id.sendButton);
         sendButton.setOnClickListener(new View.OnClickListener() {
 
@@ -168,17 +184,21 @@ public class MessageActivity extends AppCompatActivity {
                         String mess = messageEdit.getText().toString();
                         String twitt = twitterEdit.getText().toString();
 
+                        //validiating inputs
                         if(email.isEmpty() && twitt.isEmpty() && mess.isEmpty()){
                             Toast.makeText(MessageActivity.this, "You have to fill out the above fields before sending message", Toast.LENGTH_SHORT).show();
+                        }
+                        else if(mess.length() >29){
+                            Toast.makeText(MessageActivity.this, "The current maximum message lenth is 29 characters.", Toast.LENGTH_SHORT).show();
+                        }
+                        else if(email.isEmpty()){
+                            Toast.makeText(MessageActivity.this, "You have to add a valid Gmail address following this format: abc@gmail.com", Toast.LENGTH_LONG).show();
                         }
                         else if(twitt.isEmpty()){
                             Toast.makeText(MessageActivity.this, "You have to add a valid Twitter username for a user you are following, without the @", Toast.LENGTH_LONG).show();
                         }
                         else if(mess.isEmpty()){
                             Toast.makeText(MessageActivity.this, "You have to write a message", Toast.LENGTH_LONG).show();
-                        }
-                        else if(email.isEmpty()){
-                            Toast.makeText(MessageActivity.this, "You have to add a valid Gmail address following this format: abc@gmail.com", Toast.LENGTH_LONG).show();
                         }
                         else {
                             //removing spaces from twitter username
@@ -211,7 +231,7 @@ public class MessageActivity extends AppCompatActivity {
                             sendValuesTwitter.add(twitterMess);
                             sendValuesTwitter.add(fixedTwitt);
 
-
+                            //starting async tasks to send messages via different channels
                             new SendGmail().execute(sendValuesGmail);
                             new SendTwitter().execute(sendValuesTwitter);
 
@@ -221,6 +241,24 @@ public class MessageActivity extends AppCompatActivity {
 
 
     }
+
+
+    //Textwatcher responsible for counting how many characters available in message
+    private final TextWatcher mTextEditorWatcher = new TextWatcher() {
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            //This sets a textview to the current length
+            mTextView.setText(String.valueOf(29 - s.length()));
+        }
+
+        public void afterTextChanged(Editable s) {
+        }
+    };
+
+
+    //asynctask responsible for sending gmail message
     private class SendGmail extends AsyncTask<ArrayList<String>, String, Void> {
 
         public void sendMessage(Gmail service, String userId, MimeMessage email)
@@ -295,6 +333,7 @@ public class MessageActivity extends AppCompatActivity {
 
     }
 
+    //asynctask responsible for sending twitter message
     private class SendTwitter extends AsyncTask<ArrayList<String>, String, String> {
 
 
@@ -345,6 +384,7 @@ public class MessageActivity extends AppCompatActivity {
         }
     }
 
+    //asynctask responsible for checking for new messages
     private class checkForMessage extends AsyncTask<String, String, HashMap> {
 
         @Override
@@ -516,6 +556,7 @@ public class MessageActivity extends AppCompatActivity {
         }
     }
 
+    //stopping progressbars when exiting application.
     @Override
     protected void onDestroy() {
         super.onDestroy();
