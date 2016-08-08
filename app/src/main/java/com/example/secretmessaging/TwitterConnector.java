@@ -34,6 +34,7 @@ public class TwitterConnector extends Activity {
         context = c;
     }
 
+    //returns twitter object.
     public Twitter getTwitter(){
 
         twitter_consumer_key = context.getResources().getString(R.string.twitter_consumer_key);
@@ -42,6 +43,7 @@ public class TwitterConnector extends Activity {
         url_twitter_auth = context.getResources().getString(R.string.url_twitter_auth);
         twitter_oauth_verifier = context.getResources().getString(R.string.twitter_oauth_verifier);
 
+        //building configuration object
         ConfigurationBuilder builder = new ConfigurationBuilder();
         builder.setOAuthConsumerKey(twitter_consumer_key);
         builder.setOAuthConsumerSecret(twitter_consumer_secret);

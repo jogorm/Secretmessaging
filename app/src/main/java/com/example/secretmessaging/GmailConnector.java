@@ -51,6 +51,7 @@ public class GmailConnector extends Activity{
         return mService;
     }
 
+    //returns google credential object.
     public GoogleAccountCredential getCredentials(){
 
         mSharedPreferences = context.getSharedPreferences("MyPref", 0);

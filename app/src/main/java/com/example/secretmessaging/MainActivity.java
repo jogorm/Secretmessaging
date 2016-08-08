@@ -63,35 +63,32 @@ import static com.example.secretmessaging.R.id.googleStatus;
 
 public class MainActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
 
-    private static Twitter twitter;
-    private static SharedPreferences mSharedPreferences;
-    private static RequestToken requestToken;
-    private static SharedPreferences settings;
-
+    //Visual elements
     private Button btnLogin;
     private Button logOut;
-    private Button actButton;
-
-    //Google Stuff
-    GoogleAccountCredential mCredential;
-    private TextView mOutputText;
+    private Button actButton; private TextView mOutputText;
     private TextView gmailStatus;
     private TextView twitterStatus;
     private SignInButton mCallApiButton;
     ProgressDialog mProgress;
     private Button logoutGmail;
 
+    //Google Stuff
+    GoogleAccountCredential mCredential;
     static final int REQUEST_ACCOUNT_PICKER = 1000;
     static final int REQUEST_AUTHORIZATION = 1001;
     static final int REQUEST_GOOGLE_PLAY_SERVICES = 1002;
     static final int REQUEST_PERMISSION_GET_ACCOUNTS = 1003;
-
     private static final String BUTTON_TEXT = "Connect to Gmail";
     private static final String PREF_ACCOUNT_NAME = "accountName";
     private static final String[] SCOPES = {GmailScopes.GMAIL_LABELS, GmailScopes.GMAIL_COMPOSE, GmailScopes.GMAIL_INSERT, GmailScopes.GMAIL_MODIFY, GmailScopes.GMAIL_READONLY, GmailScopes.MAIL_GOOGLE_COM};
     private com.google.api.services.gmail.Gmail mService = null;
 
     //Twitter stuff
+    private static Twitter twitter;
+    private static SharedPreferences mSharedPreferences;
+    private static RequestToken requestToken;
+    private static SharedPreferences settings;
     private String twitter_consumer_key;
     private String twitter_consumer_secret;
     private String twitter_callback;
@@ -114,36 +111,36 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //getting twitter values from string resources
         twitter_consumer_key = getResources().getString(R.string.twitter_consumer_key);
         twitter_consumer_secret = getResources().getString(R.string.twitter_consumer_secret);
         twitter_callback = getResources().getString(R.string.twitter_callback);
         url_twitter_auth = getResources().getString(R.string.url_twitter_auth);
         twitter_oauth_verifier = getResources().getString(R.string.twitter_oauth_verifier);
 
+        //allowing application to run network operations on ui-thread (not currently being used)
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
         setContentView(R.layout.activity_main);
         MainActivity.context = getApplicationContext();
 
+        //getting shared preferences
         mSharedPreferences = getApplicationContext().getSharedPreferences("MyPref", 0);
         String accountName = mSharedPreferences.getString(PREF_ACCOUNT_NAME, null);
 
+        //checking if user is logged into google and twitter, and setting status texts accordingly
         gmailStatus = (TextView) findViewById(googleStatus);
         twitterStatus = (TextView) findViewById(R.id.twitterStatus);
 
-
         if (mSharedPreferences.getBoolean(PREF_KEY_GMAIL_LOGIN, false)) {
-
             gmailStatus.setText("Gmail logged in");
-
         }
-
         if (mSharedPreferences.getBoolean(PREF_KEY_TWITTER_LOGIN, false)) {
             twitterStatus.setText("Logged in to Gmail");
-
         }
 
+        //twitter login button. calls the loginTwitter async thread.
         btnLogin = (Button) findViewById(R.id.btn_login);
         btnLogin.setOnClickListener(new View.OnClickListener() {
 
@@ -154,7 +151,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
             }
         });
-
+        //twitter logout button
         logOut = (Button) findViewById(R.id.logOutFromTwitter);
         logOut.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -163,8 +160,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                 Toast.makeText(MainActivity.this, "You have logged out of Twitter", Toast.LENGTH_LONG).show();
             }
         });
-
-
+        //changing activity
         actButton = (Button) findViewById(R.id.newActButton);
         if (actButton != null) {
             actButton.setText("Messages");
@@ -177,18 +173,16 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             }
         });
 
-
+        //logging out of gmail-button (NOT IMPLEMENTED)
         logoutGmail = (Button) findViewById(R.id.logoutGmail);
         logoutGmail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(MainActivity.this, "This function has not been implemented yet.", Toast.LENGTH_LONG).show();
-
-
             }
         });
 
-
+        //login in to gmail-button.
         mCallApiButton = (SignInButton) findViewById(R.id.button);
         mCallApiButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -212,8 +206,9 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         // Initialize credentials and service object.
         mCredential = GoogleAccountCredential.usingOAuth2(getApplicationContext(), Arrays.asList(SCOPES)).setBackOff(new ExponentialBackOff());
 
-
+        //logging into to twitter, if twitter is not already logged in.
         if (!isTwitterLoggedInAlready()) {
+            //gets uri from twitter callback
             Uri uri = getIntent().getData();
             if (uri != null && uri.toString().startsWith(twitter_callback)) {
                 // oAuth verifier
@@ -235,13 +230,13 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                     e.putBoolean(PREF_KEY_TWITTER_LOGIN, true);
                     e.commit(); // save changes
 
-
+                    //getting name of user logged in, and displaying welcome message
                     long userID = accessToken.getUserId();
                     User user = twitter.showUser(userID);
                     String username = user.getName();
-
                     Toast.makeText(MainActivity.this, "Welcome " + username, Toast.LENGTH_SHORT).show();
                     twitterStatus.setText("Logged in to Twitter");
+
                 } catch (Exception e) {
                     // Check log for login errors
                     Log.e("Twitter Login Error", "> " + e.getMessage());
@@ -250,6 +245,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         }
     }
 
+    //setting status text fields when user returns from another activity
     @Override
     protected void onStart() {
         super.onStart();
@@ -258,8 +254,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             gmailStatus.setText("Gmail logged in");
             mOutputText.setText("Logged in to Gmail");
             Log.i("hallo", "gmail logged in");
-
-
         } else {
             gmailStatus.setText("");
             Log.i("hallo", "gmail not logged in");
@@ -274,21 +268,20 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         }
 
         String reply = String.valueOf(mSharedPreferences.getBoolean(PREF_KEY_GMAIL_LOGIN, false));
-        Log.i("reply:", reply);
-
     }
 
+    //gets the application context
     public static Context getAppContext() {
         return MainActivity.context;
     }
 
-
+    //checks the shared preferences about whether twitter is logged in
     private boolean isTwitterLoggedInAlready() {
         // return twitter login status from Shared Preferences
         return mSharedPreferences.getBoolean(PREF_KEY_TWITTER_LOGIN, false);
     }
 
-
+    //removing twitter login info from shared preferences
     private void logoutFromTwitter() {
         // Clear the shared preferences
         SharedPreferences.Editor e = mSharedPreferences.edit();
@@ -300,7 +293,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
     }
 
-
+    //comment from google
     /**
      * Attempt to call the API, after verifying that all the preconditions are
      * satisfied. The preconditions are: Google Play Services installed, an
@@ -322,6 +315,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         }
     }
 
+    //comment from google
     /**
      * Attempts to set the account used with the API credentials. If an account
      * name was previously saved it will use that one; otherwise an account
@@ -355,6 +349,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         }
     }
 
+    //handles the various results of logging in with google (like whether the user has google play services installed, have given permission +++
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -402,6 +397,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         }
     }
 
+    //comment from google
     /**
      * Respond to requests for permissions at runtime for API 23 and above.
      *
@@ -418,6 +414,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                 requestCode, permissions, grantResults, this);
     }
 
+    //comment from google
     /**
      * Callback for when a permission is granted using the EasyPermissions
      * library.
@@ -431,6 +428,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         // Do nothing.
     }
 
+    //comment from google
     /**
      * Callback for when a permission is denied using the EasyPermissions
      * library.
@@ -444,7 +442,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         // Do nothing.
     }
 
-
+    //comment from google
     /**
      * Checks whether the device currently has a network connection.
      *
@@ -456,6 +454,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         return (networkInfo != null && networkInfo.isConnected());
     }
 
+    //comment from google
     /**
      * Check that Google Play services APK is installed and up to date.
      *
@@ -468,6 +467,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         return connectionStatusCode == ConnectionResult.SUCCESS;
     }
 
+    //comment from google
     /**
      * Attempt to resolve a missing, out-of-date, invalid or disabled Google
      * Play Services installation via a user dialog, if possible.
@@ -480,7 +480,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         }
     }
 
-
+    //comment from google
     /**
      * Display an error dialog showing that Google Play Services is missing
      * or out of date.
@@ -495,6 +495,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
     }
 
+    //comment from google
     /**
      * An asynchronous task that handles the Gmail API call.
      * Placing the API calls in their own task ensures the UI stays responsive.
