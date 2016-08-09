@@ -1,6 +1,7 @@
 package com.example.secretmessaging;
 
-import com.google.android.gms.auth.GoogleAuthException;
+import com.beardedhen.androidbootstrap.TypefaceProvider;
+import com.beardedhen.androidbootstrap.BootstrapButton;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.SignInButton;
@@ -9,12 +10,7 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 
-import com.google.api.client.http.GenericUrl;
-import com.google.api.client.http.HttpRequest;
-import com.google.api.client.http.HttpRequestFactory;
-import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.HttpTransport;
-import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.ExponentialBackOff;
@@ -43,7 +39,6 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -72,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     private SignInButton mCallApiButton;
     ProgressDialog mProgress;
     private Button logoutGmail;
+    private BootstrapButton bs;
 
     //Google Stuff
     GoogleAccountCredential mCredential;
@@ -110,6 +106,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        TypefaceProvider.registerDefaultIconSets();
 
         //getting twitter values from string resources
         twitter_consumer_key = getResources().getString(R.string.twitter_consumer_key);
@@ -141,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         }
 
         //twitter login button. calls the loginTwitter async thread.
-        btnLogin = (Button) findViewById(R.id.btn_login);
+       /* btnLogin = (Button) findViewById(R.id.btn_login);
         btnLogin.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -150,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                 new loginTwitter(MainActivity.getAppContext()).execute();
 
             }
-        });
+        });*/
         //twitter logout button
         logOut = (Button) findViewById(R.id.logOutFromTwitter);
         logOut.setOnClickListener(new View.OnClickListener() {
@@ -184,6 +181,8 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
         //login in to gmail-button.
         mCallApiButton = (SignInButton) findViewById(R.id.button);
+        mCallApiButton.setColorScheme(SignInButton.COLOR_DARK);
+        mCallApiButton.setSize(SignInButton.SIZE_WIDE);
         mCallApiButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -194,6 +193,14 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             }
         });
 
+        bs = (BootstrapButton)findViewById(R.id.bootstrapButton);
+        bs.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new loginTwitter(MainActivity.getAppContext()).execute();
+
+            }
+        });
 
         mOutputText = (TextView) findViewById(R.id.textView);
         if (mOutputText != null) {

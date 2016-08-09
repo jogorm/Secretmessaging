@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.secretmessaging"
-        minSdkVersion 11
+        minSdkVersion 14
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
@@ -47,6 +47,8 @@ dependencies {
     compile 'com.android.support:design:23.4.0'
     compile 'org.mitre.secretsharing:secret-sharing-scheme:1.1.1'
     testCompile 'junit:junit:4.12'
+    compile 'com.beardedhen:androidbootstrap:2.3.0'
+
 
 
 }
