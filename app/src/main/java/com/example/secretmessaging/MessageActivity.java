@@ -525,6 +525,7 @@ public class MessageActivity extends AppCompatActivity {
             String gmail = String.valueOf(s.get("gmail"));
 
             if(!gmail.isEmpty() && !twitter.isEmpty()) {
+
                 List<Part> parts = new ArrayList<Part>();
                 parts.add(PartFormats.parse(gmail));
                 parts.add(PartFormats.parse(twitter));

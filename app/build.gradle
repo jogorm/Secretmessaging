@@ -49,8 +49,6 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile 'com.beardedhen:androidbootstrap:2.3.0'
 
-
-
 }
 
 
