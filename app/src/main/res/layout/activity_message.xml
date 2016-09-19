@@ -136,12 +136,12 @@
         android:layout_centerHorizontal="true"  />
 
     <TextView
-        android:text="29"
+        android:text="28"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/twitterText"
-        android:layout_toLeftOf="@+id/dateView"
-        android:layout_toStartOf="@+id/dateView"
+        android:layout_toRightOf="@+id/sendButton"
+        android:layout_marginLeft="400px"
         android:id="@+id/textLength"
         />
 

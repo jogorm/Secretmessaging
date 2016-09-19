@@ -32,7 +32,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -125,6 +127,11 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         //getting shared preferences
         mSharedPreferences = getApplicationContext().getSharedPreferences("MyPref", 0);
         String accountName = mSharedPreferences.getString(PREF_ACCOUNT_NAME, null);
+
+
+        final TelephonyManager tm = (TelephonyManager) getBaseContext().getSystemService(Context.TELEPHONY_SERVICE);
+
+        System.out.println("Device Id: " + tm.getDeviceId());
 
         //checking if user is logged into google and twitter, and setting status texts accordingly
         gmailStatus = (TextView) findViewById(googleStatus);

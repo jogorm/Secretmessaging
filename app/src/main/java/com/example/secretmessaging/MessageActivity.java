@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.telephony.TelephonyManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -23,14 +24,21 @@ import com.google.api.services.gmail.model.ListMessagesResponse;
 import com.google.api.services.gmail.model.Message;
 import com.google.api.services.gmail.model.MessagePart;
 import com.google.api.services.gmail.model.MessagePartHeader;
+import com.sun.mail.smtp.DigestMD5;
 
+import org.hashids.Hashids;
 import org.mitre.secretsharing.Part;
 import org.mitre.secretsharing.Secrets;
 import org.mitre.secretsharing.codec.PartFormats;
 import org.mitre.secretsharing.util.InputValidationException;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -80,6 +88,7 @@ public class MessageActivity extends AppCompatActivity {
 
 
     String identifier = "jgr2016 ";
+    String hashIdentifier = "";
     private TextView messageReply;
 
 
@@ -116,6 +125,34 @@ public class MessageActivity extends AppCompatActivity {
         messageEdit = (EditText)findViewById(R.id.messageText);
         emailEdit = (EditText)findViewById(R.id.emailText);
         twitterEdit = (EditText)findViewById(R.id.twitterText);
+
+        //Getting device id
+        final TelephonyManager tm = (TelephonyManager) getBaseContext().getSystemService(Context.TELEPHONY_SERVICE);
+        String deviceId = tm.getDeviceId();
+        long longDevideId = Long.parseLong(deviceId);
+        System.out.println("Device Id: " + tm.getDeviceId());
+
+        //hashing the device id with md5
+        MessageDigest md = null;
+        try {
+            md = MessageDigest.getInstance("MD5");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        md.update(deviceId.getBytes());
+
+        byte byteData[] = md.digest();
+
+        //convert the byte to hex format method 1
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < byteData.length; i++) {
+            sb.append(Integer.toString((byteData[i] & 0xff) + 0x100, 16).substring(1));
+        }
+
+        String hashedId = sb.toString();
+        System.out.println("Digest(in hex format):: " + hashedId);
+        final String shortHashedId = hashedId.substring(0,5);
+        System.out.println("Shortened string: " + shortHashedId);
 
 
         //getting mService object from GmailConnectorclass
@@ -188,8 +225,8 @@ public class MessageActivity extends AppCompatActivity {
                         if(email.isEmpty() && twitt.isEmpty() && mess.isEmpty()){
                             Toast.makeText(MessageActivity.this, "You have to fill out the above fields before sending message", Toast.LENGTH_SHORT).show();
                         }
-                        else if(mess.length() >29){
-                            Toast.makeText(MessageActivity.this, "The current maximum message lenth is 29 characters.", Toast.LENGTH_SHORT).show();
+                        else if(mess.length() >28){
+                            Toast.makeText(MessageActivity.this, "The current maximum message length is 28 characters.", Toast.LENGTH_SHORT).show();
                         }
                         else if(email.isEmpty()){
                             Toast.makeText(MessageActivity.this, "You have to add a valid Gmail address following this format: abc@gmail.com", Toast.LENGTH_LONG).show();
@@ -215,11 +252,13 @@ public class MessageActivity extends AppCompatActivity {
                             //Building the string by adding the identifier to start of string.
                             StringBuilder sbTwitter = new StringBuilder();
                             sbTwitter.append(identifier);
+                            sbTwitter.append(shortHashedId + " ");
                             sbTwitter.append(twitterMess);
                             twitterMess = sbTwitter.toString();
 
                             StringBuilder sbGmail = new StringBuilder();
                             sbGmail.append(identifier);
+                            sbGmail.append(shortHashedId+ " ");
                             sbGmail.append(gmailMess);
                             gmailMess = sbGmail.toString();
 
@@ -250,7 +289,7 @@ public class MessageActivity extends AppCompatActivity {
 
         public void onTextChanged(CharSequence s, int start, int before, int count) {
             //This sets a textview to the current length
-            mTextView.setText(String.valueOf(29 - s.length()));
+            mTextView.setText(String.valueOf(28 - s.length()));
         }
 
         public void afterTextChanged(Editable s) {
@@ -395,13 +434,10 @@ public class MessageActivity extends AppCompatActivity {
 
         @Override
         protected HashMap doInBackground(String... params) {
-            String gmailMessage = null;
+            String gmailMessage = "";
+
             String query = params[0];
-            try {
-                gmailMessage = listMessagesMatchingQuery(mService, "me", query);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+
 
             //twitter message
             String twitterMessage="";
@@ -415,6 +451,7 @@ public class MessageActivity extends AppCompatActivity {
             if (messages != null) {
                 for (DirectMessage message : messages){
                     if(message.getText().contains(query)) {
+
 
                         System.out.println(message.getSenderScreenName());
                         System.out.println(message.getCreatedAt());
@@ -433,11 +470,22 @@ public class MessageActivity extends AppCompatActivity {
             }
 
             fixedTwitterMessage = twitterMessage.replace(identifier, "");
-            Log.i("Final twitter message: " , fixedTwitterMessage);
+            System.out.println("Twitter message after identifier is removed" + fixedTwitterMessage);
+            hashIdentifier = fixedTwitterMessage.substring(0, 5);
+            System.out.println("HASH: " + hashIdentifier);
+            String finalFixedTwitterMessage = fixedTwitterMessage.replace(hashIdentifier, "");
+            Log.i("Final twitter message: " , finalFixedTwitterMessage);
+
+
+            try {
+                gmailMessage = listMessagesMatchingQuery(mService, "me", query);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
             HashMap message = new HashMap();
             message.put("gmail", gmailMessage);
-            message.put("twitter", fixedTwitterMessage);
+            message.put("twitter", finalFixedTwitterMessage);
             return message;
         }
 
@@ -445,7 +493,7 @@ public class MessageActivity extends AppCompatActivity {
             ListMessagesResponse response = service.users().messages().list(userId).setQ(query).execute();
 
             String gmailMessage ="";
-            String fixedGmailMessage;
+            String fixedGmailMessage = "";
             List<Message> messages = new ArrayList<Message>();
             while (response.getMessages() != null) {
                 messages.addAll(response.getMessages());
@@ -462,6 +510,7 @@ public class MessageActivity extends AppCompatActivity {
 
 
                 if (theMessage.contains(identifier)) {
+
                     //getting the username of the sender
                     Message m = mService.users().messages().get("me", message.getId()).setFormat("full").setFields("payload, snippet").execute();
                     List<MessagePart> parts  = m.getPayload().getParts();
@@ -477,14 +526,31 @@ public class MessageActivity extends AppCompatActivity {
                         }
                     }
                     gmailMessage = theMessage;
-                    break;
+                    fixedGmailMessage = gmailMessage.replace(identifier, "");
+                    String shortgmail = fixedGmailMessage.substring(0,6);
+                    System.out.println("Short gmail thingy: " + shortgmail);
+                    System.out.println("----------------");
+                    String newShortGmail = shortgmail.trim();
+                    if(newShortGmail.equals(hashIdentifier)){
+                        System.out.println("ShortGmail = hashIdentifier");
+                        break;
+                    }
+                    else{
+
+                    }
+                    //break;
                 }
 
             }
 
-
-
+/*
             fixedGmailMessage = gmailMessage.replace(identifier, "");
+            System.out.println("ifTheMessagecontainsidentifier: " + gmailMessage);
+            String shortgmail = fixedGmailMessage.substring(0,6);
+            System.out.println("Short gmail thingy: " + shortgmail);
+            System.out.println("----------------");*/
+
+
 
             if(fixedGmailMessage.contains("@")){
                 fixedGmailMessage = fixedGmailMessage.substring(fixedGmailMessage.indexOf(" ") + 1);
@@ -492,7 +558,7 @@ public class MessageActivity extends AppCompatActivity {
             }
 
 
-            if(fixedGmailMessage.length() > 60) {
+            /*if(fixedGmailMessage.length() > 60) {
                 System.out.println("Fixed gmail message BEFORE second substring thing: " + fixedGmailMessage);
                 try {
                     fixedGmailMessage = fixedGmailMessage.substring(0, fixedGmailMessage.indexOf(' '));
@@ -500,11 +566,12 @@ public class MessageActivity extends AppCompatActivity {
                     Log.e("Error", "> " + e.getMessage());
                 }
                 System.out.println("Fixed gmail message after second substring thing: " + fixedGmailMessage);
-            }
+            }*/
 
-            Log.i(" Final Gmail Message", fixedGmailMessage);
+            String finalFixedGmailMessage = fixedGmailMessage.substring(5);
+            System.out.println("Final Fixed Gmail Message :" + finalFixedGmailMessage);
 
-            return fixedGmailMessage;
+            return finalFixedGmailMessage;
         }
 
         public String getMessage(Gmail service, String userId, String messageId)
@@ -522,13 +589,16 @@ public class MessageActivity extends AppCompatActivity {
             byte[] result;
             
             String twitter = String.valueOf(s.get("twitter"));
+            String trimmedTwitter = twitter.trim();
             String gmail = String.valueOf(s.get("gmail"));
+            String trimmedGmail = gmail.trim();
 
             if(!gmail.isEmpty() && !twitter.isEmpty()) {
 
                 List<Part> parts = new ArrayList<Part>();
-                parts.add(PartFormats.parse(gmail));
-                parts.add(PartFormats.parse(twitter));
+                parts.add(PartFormats.parse(trimmedTwitter));
+                parts.add(PartFormats.parse(trimmedGmail));
+
 
                 Part[] p = parts.toArray(new Part[0]);
                 try {

@@ -48,6 +48,8 @@ dependencies {
     compile 'org.mitre.secretsharing:secret-sharing-scheme:1.1.1'
     testCompile 'junit:junit:4.12'
     compile 'com.beardedhen:androidbootstrap:2.3.0'
+    compile 'org.hashids:hashids:1.0.1'
+    compile 'org.apache.commons:commons-collections4:4.0'
 
 }
 
