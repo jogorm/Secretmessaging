@@ -1,0 +1,16 @@
+{
+  "summary": {
+    "title": "Autoupdater Threat modelling",
+    "owner": "Golive boys"
+  },
+  "detail": {
+    "contributors": [],
+    "diagrams": [
+      {
+        "title": "threats",
+        "thumbnail": "./public/content/images/thumbnail.jpg",
+        "id": 0
+      }
+    ]
+  }
+}
