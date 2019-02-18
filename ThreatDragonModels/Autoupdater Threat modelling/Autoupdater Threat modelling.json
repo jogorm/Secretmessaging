@@ -9,7 +9,702 @@
       {
         "title": "threats",
         "thumbnail": "./public/content/images/thumbnail.jpg",
-        "id": 0
+        "id": 0,
+        "diagramJson": {
+          "cells": [
+            {
+              "type": "tm.Process",
+              "size": {
+                "width": 100,
+                "height": 100
+              },
+              "position": {
+                "x": 352,
+                "y": 190
+              },
+              "angle": 0,
+              "id": "b7731be4-b3d0-4da8-8691-45c8a9260966",
+              "z": 1,
+              "hasOpenThreats": false,
+              "attrs": {
+                ".element-shape": {
+                  "class": "element-shape hasNoOpenThreats isInScope"
+                },
+                "text": {
+                  "text": "wfm"
+                },
+                ".element-text": {
+                  "class": "element-text hasNoOpenThreats isInScope"
+                }
+              }
+            },
+            {
+              "type": "tm.Process",
+              "size": {
+                "width": 100,
+                "height": 100
+              },
+              "position": {
+                "x": 556,
+                "y": 19
+              },
+              "angle": 0,
+              "id": "051f6a1d-96b6-4d0b-a58e-cf140d45663b",
+              "z": 2,
+              "hasOpenThreats": false,
+              "attrs": {
+                ".element-shape": {
+                  "class": "element-shape hasNoOpenThreats isInScope"
+                },
+                "text": {
+                  "text": "james"
+                },
+                ".element-text": {
+                  "class": "element-text hasNoOpenThreats isInScope"
+                }
+              }
+            },
+            {
+              "type": "tm.Store",
+              "size": {
+                "width": 160,
+                "height": 80
+              },
+              "position": {
+                "x": 501,
+                "y": 401
+              },
+              "angle": 0,
+              "id": "e6dbdaa2-24cf-4428-adaa-f8f6aaf15f7c",
+              "z": 5,
+              "hasOpenThreats": false,
+              "attrs": {
+                ".element-shape": {
+                  "class": "element-shape hasNoOpenThreats isInScope"
+                },
+                "text": {
+                  "text": "S3"
+                },
+                ".element-text": {
+                  "class": "element-text hasNoOpenThreats isInScope"
+                }
+              }
+            },
+            {
+              "type": "tm.Store",
+              "size": {
+                "width": 160,
+                "height": 80
+              },
+              "position": {
+                "x": 138,
+                "y": 446
+              },
+              "angle": 0,
+              "id": "c86a484c-576f-4510-a204-3a2c0a13203d",
+              "z": 6,
+              "hasOpenThreats": false,
+              "attrs": {
+                ".element-shape": {
+                  "class": "element-shape hasNoOpenThreats isInScope"
+                },
+                "text": {
+                  "text": "DB"
+                },
+                ".element-text": {
+                  "class": "element-text hasNoOpenThreats isInScope"
+                }
+              }
+            },
+            {
+              "type": "tm.Process",
+              "size": {
+                "width": 100,
+                "height": 100
+              },
+              "position": {
+                "x": 625,
+                "y": 189
+              },
+              "angle": 0,
+              "id": "c6de469a-b84a-4078-b30d-65e46c7c5d6b",
+              "z": 7,
+              "hasOpenThreats": true,
+              "threats": [
+                {
+                  "ruleId": "b2a6d40d-d3f8-4750-8e4d-c02cc84b13dc",
+                  "title": "Generic spoofing threat",
+                  "type": "Spoofing",
+                  "status": "Open",
+                  "severity": "Medium",
+                  "description": "integration username and password is stored in plaintext.",
+                  "mitigation": "Use linux user setup to limit access to config file"
+                },
+                {
+                  "ruleId": "4adaa48a-0345-4533-a189-64c98c4420dd",
+                  "title": "Generic tampering threat",
+                  "type": "Tampering",
+                  "status": "Open",
+                  "severity": "Medium",
+                  "description": "user auth stuff is not secure",
+                  "mitigation": "Use linux user setup to limit access to config file"
+                },
+                {
+                  "ruleId": "87bc37e2-798e-4d68-bb96-feb1da26da48",
+                  "title": "Generic repudiation threat",
+                  "type": "Repudiation",
+                  "status": "Mitigated",
+                  "severity": "Medium",
+                  "description": "A generic repudiation threat",
+                  "mitigation": "Linux audit logs. Process logs. \n\nCheck if it is possible to set permissions for users on docker command..."
+                },
+                {
+                  "ruleId": "13000296-b17d-4b72-9cc4-f5cc33f80e4c",
+                  "title": "Generic information disclosure threat",
+                  "type": "Information disclosure",
+                  "status": "Open",
+                  "severity": "Medium",
+                  "description": "A generic information disclosure threat",
+                  "mitigation": "permissions on config file"
+                },
+                {
+                  "ruleId": "edb05d76-a695-455f-947b-7d67b78bc31d",
+                  "title": "Generic DoS threat",
+                  "type": "Denial of service",
+                  "status": "Mitigated",
+                  "severity": "Medium",
+                  "description": "A generic DoS threat",
+                  "mitigation": "Doesn't take any inout. Crontab is max every minute"
+                },
+                {
+                  "ruleId": "c1377855-ea20-4c97-8861-f95c364fb8d2",
+                  "title": "Generic elevation threat",
+                  "type": "Elevation of privilege",
+                  "status": "Mitigated",
+                  "severity": "Medium",
+                  "description": "A generic elevation threat",
+                  "mitigation": "OS should be set up with users and correct access control"
+                }
+              ],
+              "attrs": {
+                ".element-shape": {
+                  "class": "element-shape hasOpenThreats isInScope"
+                },
+                "text": {
+                  "text": "Auto Updater"
+                },
+                ".element-text": {
+                  "class": "element-text hasOpenThreats isInScope"
+                }
+              }
+            },
+            {
+              "type": "tm.Process",
+              "size": {
+                "width": 100,
+                "height": 100
+              },
+              "position": {
+                "x": 172,
+                "y": 282
+              },
+              "angle": 0,
+              "id": "53d34821-a7e4-4beb-9233-72577851af8e",
+              "z": 8,
+              "hasOpenThreats": false,
+              "attrs": {
+                ".element-shape": {
+                  "class": "element-shape hasNoOpenThreats isInScope"
+                },
+                "text": {
+                  "text": "lol"
+                },
+                ".element-text": {
+                  "class": "element-text hasNoOpenThreats isInScope"
+                }
+              }
+            },
+            {
+              "type": "tm.Flow",
+              "smooth": true,
+              "source": {
+                "id": "c86a484c-576f-4510-a204-3a2c0a13203d"
+              },
+              "target": {
+                "id": "53d34821-a7e4-4beb-9233-72577851af8e"
+              },
+              "vertices": [],
+              "id": "f59a622a-781e-41c9-8272-2594bc9c4d1d",
+              "labels": [
+                {
+                  "position": 0.5,
+                  "attrs": {
+                    "text": {
+                      "text": "flow 6",
+                      "font-weight": "400",
+                      "font-size": "small"
+                    }
+                  }
+                }
+              ],
+              "z": 9,
+              "hasOpenThreats": false,
+              "attrs": {
+                ".marker-target": {
+                  "class": "marker-target hasNoOpenThreats isInScope"
+                },
+                ".connection": {
+                  "class": "connection hasNoOpenThreats isInScope"
+                }
+              }
+            },
+            {
+              "type": "tm.Flow",
+              "smooth": true,
+              "source": {
+                "id": "53d34821-a7e4-4beb-9233-72577851af8e"
+              },
+              "target": {
+                "id": "b7731be4-b3d0-4da8-8691-45c8a9260966"
+              },
+              "vertices": [],
+              "id": "78a30df9-9568-4a9e-87a2-cc93c4fb91f9",
+              "labels": [
+                {
+                  "position": 0.5,
+                  "attrs": {
+                    "text": {
+                      "text": "flow 7",
+                      "font-weight": "400",
+                      "font-size": "small"
+                    }
+                  }
+                }
+              ],
+              "z": 10,
+              "hasOpenThreats": false,
+              "attrs": {
+                ".marker-target": {
+                  "class": "marker-target hasNoOpenThreats isInScope"
+                },
+                ".connection": {
+                  "class": "connection hasNoOpenThreats isInScope"
+                }
+              }
+            },
+            {
+              "type": "tm.Flow",
+              "smooth": true,
+              "source": {
+                "id": "b7731be4-b3d0-4da8-8691-45c8a9260966"
+              },
+              "target": {
+                "id": "c6de469a-b84a-4078-b30d-65e46c7c5d6b"
+              },
+              "vertices": [
+                {
+                  "x": 570,
+                  "y": 234
+                }
+              ],
+              "id": "27ad042c-62e6-4968-843a-1a401927e04d",
+              "labels": [
+                {
+                  "position": 0.5,
+                  "attrs": {
+                    "text": {
+                      "text": "flow 8",
+                      "font-weight": "400",
+                      "font-size": "small"
+                    }
+                  }
+                }
+              ],
+              "z": 11,
+              "hasOpenThreats": false,
+              "threats": [
+                {
+                  "ruleId": "4adaa48a-0345-4533-a189-64c98c4420dd",
+                  "title": "Generic tampering threat",
+                  "type": "Tampering",
+                  "status": "Mitigated",
+                  "severity": "Medium",
+                  "description": "A generic tampering threat",
+                  "mitigation": "HTTPS\nAuthentication"
+                },
+                {
+                  "ruleId": "13000296-b17d-4b72-9cc4-f5cc33f80e4c",
+                  "title": "Generic information disclosure threat",
+                  "type": "Information disclosure",
+                  "status": "Mitigated",
+                  "severity": "Medium",
+                  "description": "A generic information disclosure threat",
+                  "mitigation": "Authentication. S3 url has short time to live"
+                },
+                {
+                  "ruleId": "edb05d76-a695-455f-947b-7d67b78bc31d",
+                  "title": "Generic DoS threat",
+                  "type": "Denial of service",
+                  "status": "Mitigated",
+                  "severity": "Medium",
+                  "description": "",
+                  "mitigation": "Validate input"
+                }
+              ],
+              "isPublicNetwork": true,
+              "attrs": {
+                ".marker-target": {
+                  "class": "marker-target hasNoOpenThreats isInScope"
+                },
+                ".connection": {
+                  "class": "connection hasNoOpenThreats isInScope"
+                }
+              }
+            },
+            {
+              "type": "tm.Process",
+              "size": {
+                "width": 100,
+                "height": 100
+              },
+              "position": {
+                "x": 852,
+                "y": 396
+              },
+              "angle": 0,
+              "id": "4d799eca-b278-4566-8a0c-3e944f14665a",
+              "z": 12,
+              "hasOpenThreats": false,
+              "attrs": {
+                ".element-shape": {
+                  "class": "element-shape hasNoOpenThreats isInScope"
+                },
+                "text": {
+                  "text": "bamboo"
+                },
+                ".element-text": {
+                  "class": "element-text hasNoOpenThreats isInScope"
+                }
+              }
+            },
+            {
+              "type": "tm.Flow",
+              "smooth": true,
+              "source": {
+                "id": "4d799eca-b278-4566-8a0c-3e944f14665a"
+              },
+              "target": {
+                "id": "e6dbdaa2-24cf-4428-adaa-f8f6aaf15f7c"
+              },
+              "vertices": [
+                {
+                  "x": 726,
+                  "y": 462
+                }
+              ],
+              "id": "7f891bed-8439-4f8e-99ef-4e7da1ccae8b",
+              "labels": [
+                {
+                  "position": {
+                    "distance": 0.6,
+                    "offset": 25
+                  },
+                  "attrs": {
+                    "text": {
+                      "text": "flow 10",
+                      "font-weight": "400",
+                      "font-size": "small"
+                    }
+                  }
+                }
+              ],
+              "z": 13,
+              "hasOpenThreats": false,
+              "threats": [
+                {
+                  "ruleId": "4adaa48a-0345-4533-a189-64c98c4420dd",
+                  "title": "Generic tampering threat",
+                  "type": "Tampering",
+                  "status": "Mitigated",
+                  "severity": "Medium",
+                  "description": "A generic tampering threat",
+                  "mitigation": "Authentication"
+                },
+                {
+                  "ruleId": "13000296-b17d-4b72-9cc4-f5cc33f80e4c",
+                  "title": "Generic information disclosure threat",
+                  "type": "Information disclosure",
+                  "status": "Mitigated",
+                  "severity": "Medium",
+                  "description": "A generic information disclosure threat",
+                  "mitigation": "Authentication"
+                },
+                {
+                  "ruleId": "edb05d76-a695-455f-947b-7d67b78bc31d",
+                  "title": "Generic DoS threat",
+                  "type": "Denial of service",
+                  "status": "Mitigated",
+                  "severity": "Medium",
+                  "description": "A generic DoS threat",
+                  "mitigation": "AWS knows how to mitigate this"
+                }
+              ],
+              "attrs": {
+                ".marker-target": {
+                  "class": "marker-target hasNoOpenThreats isInScope"
+                },
+                ".connection": {
+                  "class": "connection hasNoOpenThreats isInScope"
+                }
+              }
+            },
+            {
+              "type": "tm.Flow",
+              "smooth": true,
+              "source": {
+                "id": "e6dbdaa2-24cf-4428-adaa-f8f6aaf15f7c"
+              },
+              "target": {
+                "id": "b7731be4-b3d0-4da8-8691-45c8a9260966"
+              },
+              "vertices": [
+                {
+                  "x": 465,
+                  "y": 307
+                }
+              ],
+              "id": "5083f6d8-8272-4d1e-b758-11f7b0e30f0d",
+              "labels": [
+                {
+                  "position": 0.5,
+                  "attrs": {
+                    "text": {
+                      "text": "flow 11",
+                      "font-weight": "400",
+                      "font-size": "small"
+                    }
+                  }
+                }
+              ],
+              "z": 14,
+              "hasOpenThreats": false,
+              "threats": [
+                {
+                  "ruleId": "4adaa48a-0345-4533-a189-64c98c4420dd",
+                  "title": "Generic tampering threat",
+                  "type": "Tampering",
+                  "status": "Mitigated",
+                  "severity": "Medium",
+                  "description": "A generic tampering threat",
+                  "mitigation": "AWS credentials being used"
+                },
+                {
+                  "ruleId": "13000296-b17d-4b72-9cc4-f5cc33f80e4c",
+                  "title": "Generic information disclosure threat",
+                  "type": "Information disclosure",
+                  "status": "Mitigated",
+                  "severity": "Medium",
+                  "description": "A generic information disclosure threat",
+                  "mitigation": "AWS credentials being used"
+                },
+                {
+                  "ruleId": "edb05d76-a695-455f-947b-7d67b78bc31d",
+                  "title": "Generic DoS threat",
+                  "type": "Denial of service",
+                  "status": "Mitigated",
+                  "severity": "Medium",
+                  "description": "A generic DoS threat",
+                  "mitigation": "AWS credentials being used"
+                }
+              ],
+              "attrs": {
+                ".marker-target": {
+                  "class": "marker-target hasNoOpenThreats isInScope"
+                },
+                ".connection": {
+                  "class": "connection hasNoOpenThreats isInScope"
+                }
+              }
+            },
+            {
+              "type": "tm.Flow",
+              "smooth": true,
+              "source": {
+                "id": "c6de469a-b84a-4078-b30d-65e46c7c5d6b"
+              },
+              "target": {
+                "id": "051f6a1d-96b6-4d0b-a58e-cf140d45663b"
+              },
+              "vertices": [],
+              "id": "573bcfa8-8d26-445f-9c16-63ac4b9336c2",
+              "labels": [
+                {
+                  "position": 0.5,
+                  "attrs": {
+                    "text": {
+                      "text": "flow 12",
+                      "font-weight": "400",
+                      "font-size": "small"
+                    }
+                  }
+                }
+              ],
+              "z": 15,
+              "hasOpenThreats": true,
+              "threats": [
+                {
+                  "ruleId": "4adaa48a-0345-4533-a189-64c98c4420dd",
+                  "title": "Generic tampering threat",
+                  "type": "Tampering",
+                  "status": "Mitigated",
+                  "severity": "Medium",
+                  "description": "A generic tampering threat",
+                  "mitigation": "Correct linux user setup"
+                },
+                {
+                  "ruleId": "13000296-b17d-4b72-9cc4-f5cc33f80e4c",
+                  "title": "Generic information disclosure threat",
+                  "type": "Information disclosure",
+                  "status": "Open",
+                  "severity": "Medium",
+                  "description": "A generic information disclosure threat",
+                  "mitigation": "Correct linux user setup.\nInvestigate if it's possible to have auth on redis-cli in redis container..."
+                },
+                {
+                  "ruleId": "edb05d76-a695-455f-947b-7d67b78bc31d",
+                  "title": "Generic DoS threat",
+                  "type": "Denial of service",
+                  "status": "Open",
+                  "severity": "Medium",
+                  "description": "If you stop james or redis container, service has been denied",
+                  "mitigation": "Proper linux user setup. \nProper ssh access.\nProper network security"
+                }
+              ],
+              "attrs": {
+                ".marker-target": {
+                  "class": "marker-target hasOpenThreats isInScope"
+                },
+                ".connection": {
+                  "class": "connection hasOpenThreats isInScope"
+                }
+              }
+            },
+            {
+              "type": "tm.Boundary",
+              "smooth": true,
+              "source": {
+                "x": 502,
+                "y": 177
+              },
+              "target": {
+                "x": 540,
+                "y": 284
+              },
+              "vertices": [],
+              "id": "ec8d087a-9a7e-404c-bf7a-1335d250f37d",
+              "z": 16,
+              "attrs": {}
+            },
+            {
+              "type": "tm.Flow",
+              "smooth": true,
+              "source": {
+                "id": "e6dbdaa2-24cf-4428-adaa-f8f6aaf15f7c"
+              },
+              "target": {
+                "id": "c6de469a-b84a-4078-b30d-65e46c7c5d6b"
+              },
+              "vertices": [],
+              "id": "b7f500db-2282-47c8-842f-1c1c5623760f",
+              "labels": [
+                {
+                  "position": 0.5,
+                  "attrs": {
+                    "text": {
+                      "text": "flow 14",
+                      "font-weight": "400",
+                      "font-size": "small"
+                    }
+                  }
+                }
+              ],
+              "z": 17,
+              "hasOpenThreats": true,
+              "threats": [
+                {
+                  "ruleId": "4adaa48a-0345-4533-a189-64c98c4420dd",
+                  "title": "Generic tampering threat",
+                  "type": "Tampering",
+                  "status": "Open",
+                  "severity": "Medium",
+                  "description": "Need to investigate how to verify the signature we get from WFM."
+                },
+                {
+                  "ruleId": "13000296-b17d-4b72-9cc4-f5cc33f80e4c",
+                  "title": "Generic information disclosure threat",
+                  "type": "Information disclosure",
+                  "status": "Mitigated",
+                  "severity": "Medium",
+                  "description": "A generic information disclosure threat",
+                  "mitigation": "Authentication"
+                },
+                {
+                  "ruleId": "edb05d76-a695-455f-947b-7d67b78bc31d",
+                  "title": "Generic DoS threat",
+                  "type": "Denial of service",
+                  "status": "Mitigated",
+                  "severity": "Medium",
+                  "description": "A generic DoS threat",
+                  "mitigation": "Aws mitigates"
+                }
+              ],
+              "attrs": {
+                ".marker-target": {
+                  "class": "marker-target hasOpenThreats isInScope"
+                },
+                ".connection": {
+                  "class": "connection hasOpenThreats isInScope"
+                }
+              }
+            },
+            {
+              "type": "tm.Boundary",
+              "smooth": true,
+              "source": {
+                "x": 737,
+                "y": 360
+              },
+              "target": {
+                "x": 554,
+                "y": 320
+              },
+              "vertices": [],
+              "id": "57ae3058-b4df-481d-94ae-47ed71943ebb",
+              "z": 18,
+              "attrs": {}
+            },
+            {
+              "type": "tm.Boundary",
+              "smooth": true,
+              "source": {
+                "x": 787,
+                "y": 395
+              },
+              "target": {
+                "x": 837,
+                "y": 521
+              },
+              "vertices": [],
+              "id": "84822bf6-4f51-4d64-96d8-2021f5677726",
+              "z": 19,
+              "attrs": {}
+            }
+          ]
+        },
+        "size": {
+          "height": 590,
+          "width": 1025
+        }
       }
     ]
   }
